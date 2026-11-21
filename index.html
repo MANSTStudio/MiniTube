@@ -42,6 +42,62 @@
             font-size: 12px;
             color: #555555;
         }
+        .search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            min-width: 220px;
+            max-width: 380px;
+        }
+        .search-wrap input[type="text"] {
+            width: 100%;
+            padding: 5px 8px;
+            border: 1px solid #888888;
+            background: #ffffff;
+            color: #111111;
+        }
+        .keywords-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            left: 0;
+            background: #ffffff;
+            border: 1px solid #888888;
+            border-top: none;
+            z-index: 500;
+            padding: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .keywords-dropdown.open {
+            display: block;
+        }
+        .keywords-title {
+            font-size: 11px;
+            color: #555555;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        .keyword-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .keyword-chip {
+            font-size: 12px;
+            padding: 3px 8px;
+            border: 1px solid #bbbbbb;
+            background: #f4f4f4;
+            color: #111111;
+            cursor: pointer;
+        }
+        .keyword-chip:hover {
+            background: #ffeaea;
+            border-color: #cc0000;
+            color: #cc0000;
+        }
         .upload-area {
             display: flex;
             align-items: center;
@@ -57,16 +113,44 @@
             display: none;
             background: #fafafa;
             border-bottom: 1px solid #cccccc;
-            padding: 12px 18px;
+            padding: 14px 18px;
         }
         #uploadDetails .row {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
-        input[type="text"] {
-            padding: 5px 8px;
+        input[type="text"], textarea {
+            padding: 6px 8px;
             border: 1px solid #999999;
             background: #ffffff;
             color: #111111;
+        }
+        textarea {
+            width: 100%;
+            max-width: 520px;
+            min-height: 85px;
+            resize: vertical;
+        }
+        .rules-box {
+            background: #fff8f8;
+            border: 1px solid #cc0000;
+            padding: 10px 12px;
+            max-width: 520px;
+            margin: 10px 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .rules-title {
+            font-weight: bold;
+            color: #b91c1c;
+            margin-bottom: 4px;
+        }
+        .agree-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: bold;
         }
         button {
             padding: 5px 10px;
@@ -193,7 +277,22 @@
         .big-author {
             font-size: 14px;
             color: #444444;
+            margin-bottom: 4px;
+        }
+        .publish-date-line {
+            font-size: 12px;
+            color: #666666;
             margin-bottom: 10px;
+        }
+        .video-bio-box {
+            background: #fafafa;
+            border: 1px solid #e2e2e2;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
         .verified-badge {
             display: inline-flex;
@@ -249,6 +348,11 @@
             gap: 8px;
             flex-wrap: wrap;
         }
+        .comment-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
         .comment-form-row {
             display: flex;
             flex-wrap: wrap;
@@ -281,6 +385,15 @@
             <span class="limit-note">الحد الأقصى: 50MB</span>
         </div>
 
+        <div class="search-wrap" id="searchContainer">
+            <input type="text" id="searchInput" placeholder="ابحث عن فيديو أو كلمة مفتاحية (مثل: CS)...">
+            <button id="clearSearchBtn" type="button" title="مسح البحث">×</button>
+            <div class="keywords-dropdown" id="keywordsDropdown">
+                <div class="keywords-title">كلمات مفتاحية مقترحة ومرتبطة:</div>
+                <div class="keyword-chips" id="keywordChips"></div>
+            </div>
+        </div>
+
         <div class="upload-area">
             <input type="file" id="videoInput" accept="video/*">
             <span id="status">جاهز...</span>
@@ -311,13 +424,32 @@
             <label for="videoTitle">عنوان الفيديو: </label>
             <input type="text" id="videoTitle" placeholder="اكتب عنوان الفيديو">
         </div>
+        <div class="row">
+            <label for="videoBio">بايو المقطع (حد أقصى 500 حرف): </label>
+            <span id="bioCounter" style="font-size:12px; color:#555;">0 / 500</span>
+            <div style="margin-top:6px;">
+                <textarea id="videoBio" maxlength="500" placeholder="اكتب وصفاً أو بايو للفيديو (حتى 500 حرف)..."></textarea>
+            </div>
+        </div>
+
+        <div class="rules-box">
+            <div class="rules-title">الشروط والأحكام وقواعد النشر:</div>
+            <div>ممنوع نشر الإباحيات، القتل، العنف، والدم.</div>
+            <div>بنشر هذا الفيديو فإنك تقر بالتزامك الكامل بهذه القواعد وتوافق على الشروط والأحكام.</div>
+        </div>
+
+        <div class="agree-row">
+            <input type="checkbox" id="agreeTerms">
+            <label for="agreeTerms">أوافق على الشروط والأحكام وأتعهد بعدم نشر محتوى مخالف.</label>
+        </div>
+
         <button id="publishBtn" type="button">نشر</button>
         <button id="cancelBtn" type="button">إلغاء</button>
     </div>
 
     <div class="main-layout">
         <aside class="sidebar-left">
-            <h3 class="sidebar-title">الفيديوهات</h3>
+            <h3 class="sidebar-title" id="sidebarHeading">الفيديوهات</h3>
             <div id="videoListLeft"></div>
         </aside>
 
@@ -338,6 +470,17 @@
         const OWNER_CODE = "AA00";
         const OWNER_DISPLAY_NAME = "انس رائد";
         const COMMENT_COOLDOWN_MS = 60 * 1000;
+        const REQUIRED_WATCH_SECONDS = 20;
+        const MAX_BIO_LENGTH = 500;
+
+        // كلمات متقاربة ومرادفات شائعة لتوسيع البحث بالكلمات المفتاحية
+        const RELATED_KEYWORDS_MAP = {
+            cs: ["counter-strike", "cs2", "cs1.6", "csgo", "computer science", "c++", "coding", "برمجة", "علوم حاسوب"],
+            "counter-strike": ["cs", "cs2", "cs1.6", "csgo", "valve", "fps"],
+            coding: ["cs", "c++", "python", "برمجة", "كود", "computer science"],
+            برمجة: ["coding", "cs", "c++", "python", "كود", "تطوير"],
+            gaming: ["gameplay", "game", "ألعاب", "جيم", "فيديو"]
+        };
 
         const firebaseConfig = {
             apiKey: "AIzaSyDoFI_AFh_xZpPIQCIp0mqfaJ_wZDJrUTQ",
@@ -358,10 +501,19 @@
         const infoModal = document.getElementById('infoModal');
         const closeInfoBtn = document.getElementById('closeInfoBtn');
         const closeInfoTopBtn = document.getElementById('closeInfoTopBtn');
+        const searchContainer = document.getElementById('searchContainer');
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const keywordsDropdown = document.getElementById('keywordsDropdown');
+        const keywordChips = document.getElementById('keywordChips');
+        const sidebarHeading = document.getElementById('sidebarHeading');
         const videoInput = document.getElementById('videoInput');
         const uploadDetails = document.getElementById('uploadDetails');
         const uploaderNameInput = document.getElementById('uploaderName');
         const videoTitleInput = document.getElementById('videoTitle');
+        const videoBioInput = document.getElementById('videoBio');
+        const bioCounter = document.getElementById('bioCounter');
+        const agreeTermsInput = document.getElementById('agreeTerms');
         const publishBtn = document.getElementById('publishBtn');
         const cancelBtn = document.getElementById('cancelBtn');
         const statusDiv = document.getElementById('status');
@@ -371,11 +523,16 @@
         let selectedFile = null;
         let likedIds = JSON.parse(localStorage.getItem('minitube_liked_ids')) || [];
         let isOwnerSession = localStorage.getItem('minitube_is_owner') === 'true';
+        let ownedVideoIds = JSON.parse(localStorage.getItem('minitube_owned_videos')) || [];
         let savedCommentUser = localStorage.getItem('minitube_comment_user') || '';
         let lastCommentAt = Number(localStorage.getItem('minitube_last_comment_at')) || 0;
         let latestVideos = [];
         let selectedVideoId = null;
         let editingCommentKey = null;
+        let currentSearchQuery = "";
+
+        const watchAccumulator = new Map();
+        const countedViewSessionIds = new Set();
 
         aboutBtn.addEventListener('click', () => {
             infoModal.classList.add('open');
@@ -396,18 +553,188 @@
             }
         });
 
+        function extractTokens(text = "") {
+            return String(text)
+                .toLowerCase()
+                .split(/[\s\-_.,!?()[\]{}:;"'/\\|@#$%^&*+=~<>]+/)
+                .map(t => t.trim())
+                .filter(t => t.length >= 2);
+        }
+
+        function buildExpandedSearchTerms(rawQuery) {
+            const qLower = String(rawQuery || "").trim().toLowerCase();
+            if (!qLower) return [];
+
+            const terms = new Set([qLower]);
+            qLower.split(/\s+/).filter(Boolean).forEach(part => {
+                terms.add(part);
+                if (RELATED_KEYWORDS_MAP[part]) {
+                    RELATED_KEYWORDS_MAP[part].forEach(rel => terms.add(rel.toLowerCase()));
+                }
+            });
+
+            Object.entries(RELATED_KEYWORDS_MAP).forEach(([key, relatedList]) => {
+                if (key.includes(qLower) || relatedList.some(r => r.toLowerCase().includes(qLower))) {
+                    terms.add(key.toLowerCase());
+                    relatedList.forEach(r => terms.add(r.toLowerCase()));
+                }
+            });
+
+            return Array.from(terms);
+        }
+
+        function getFilteredVideos(videos, rawQuery) {
+            const terms = buildExpandedSearchTerms(rawQuery);
+            if (!terms.length) return videos;
+
+            return videos.filter(v => {
+                const haystack = [
+                    v.title || "",
+                    v.bio || "",
+                    v.uploader || ""
+                ].join(" ").toLowerCase();
+
+                return terms.some(term => haystack.includes(term));
+            });
+        }
+
+        function renderKeywordSuggestions(rawQuery) {
+            const qLower = String(rawQuery || "").trim().toLowerCase();
+            const suggested = new Set();
+
+            buildExpandedSearchTerms(qLower).forEach(t => {
+                if (t !== qLower) suggested.add(t);
+            });
+
+            latestVideos.forEach(v => {
+                const combined = `${v.title || ""} ${v.bio || ""}`;
+                extractTokens(combined).forEach(tok => {
+                    if (!qLower || tok.includes(qLower) || qLower.includes(tok)) {
+                        suggested.add(tok);
+                    }
+                });
+            });
+
+            if (!qLower) {
+                ["CS", "Counter-Strike", "برمجة", "C++"].forEach(k => suggested.add(k));
+            }
+
+            const list = Array.from(suggested).slice(0, 10);
+            keywordChips.innerHTML = "";
+
+            if (!list.length) {
+                keywordsDropdown.classList.remove('open');
+                return;
+            }
+
+            list.forEach(word => {
+                const chip = document.createElement('button');
+                chip.type = "button";
+                chip.className = "keyword-chip";
+                chip.innerText = word;
+                chip.onclick = () => {
+                    searchInput.value = word;
+                    currentSearchQuery = word;
+                    keywordsDropdown.classList.remove('open');
+                    refreshViews();
+                };
+                keywordChips.appendChild(chip);
+            });
+
+            keywordsDropdown.classList.add('open');
+        }
+
+        function refreshViews() {
+            const filtered = getFilteredVideos(latestVideos, currentSearchQuery);
+
+            if (currentSearchQuery.trim()) {
+                sidebarHeading.innerText = `نتائج البحث (${filtered.length})`;
+            } else {
+                sidebarHeading.innerText = "الفيديوهات";
+            }
+
+            if (!filtered.length) {
+                selectedVideoId = null;
+            } else if (!selectedVideoId || !filtered.some(v => v.id === selectedVideoId)) {
+                selectedVideoId = filtered[0].id;
+            }
+
+            renderLeftList(filtered);
+            renderStage(filtered);
+        }
+
+        searchInput.addEventListener('input', () => {
+            currentSearchQuery = searchInput.value;
+            renderKeywordSuggestions(currentSearchQuery);
+            refreshViews();
+        });
+
+        searchInput.addEventListener('focus', () => {
+            renderKeywordSuggestions(searchInput.value);
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = "";
+            currentSearchQuery = "";
+            keywordsDropdown.classList.remove('open');
+            refreshViews();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!searchContainer.contains(e.target)) {
+                keywordsDropdown.classList.remove('open');
+            }
+        });
+
+        videoBioInput.addEventListener('input', () => {
+            if (videoBioInput.value.length > MAX_BIO_LENGTH) {
+                videoBioInput.value = videoBioInput.value.slice(0, MAX_BIO_LENGTH);
+            }
+            bioCounter.innerText = `${videoBioInput.value.length} / ${MAX_BIO_LENGTH}`;
+        });
+
+        function resetUploadForm() {
+            selectedFile = null;
+            videoInput.value = "";
+            uploaderNameInput.value = "";
+            videoTitleInput.value = "";
+            videoBioInput.value = "";
+            bioCounter.innerText = `0 / ${MAX_BIO_LENGTH}`;
+            agreeTermsInput.checked = false;
+            uploadDetails.style.display = "none";
+        }
+
+        function formatExactDate(timestamp) {
+            if (!timestamp) return "غير محدد";
+            const d = new Date(Number(timestamp));
+            if (Number.isNaN(d.getTime())) return "غير محدد";
+            return d.toLocaleString("ar-JO", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true
+            });
+        }
+
+        function canEditVideoComments(video) {
+            if (!video) return false;
+            return isOwnerSession || ownedVideoIds.includes(video.id);
+        }
+
+        function canDeleteComment(commentItem, video) {
+            if (!commentItem) return false;
+            if (isOwnerSession) return true;
+            if (video && ownedVideoIds.includes(video.id)) return true;
+            return Boolean(savedCommentUser) && commentItem.author === savedCommentUser;
+        }
+
         const q = query(videosRef, orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
             latestVideos = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-
-            if (!latestVideos.length) {
-                selectedVideoId = null;
-            } else if (!selectedVideoId || !latestVideos.some(v => v.id === selectedVideoId)) {
-                selectedVideoId = latestVideos[0].id;
-            }
-
-            renderLeftList(latestVideos);
-            renderStage(latestVideos);
+            refreshViews();
         }, (err) => {
             statusDiv.innerText = "خطأ Firestore: " + err.message;
         });
@@ -418,25 +745,22 @@
 
             if (file.size > MAX_SIZE_BYTES) {
                 statusDiv.innerText = "مرفوض! أكبر من 50MB.";
-                videoInput.value = "";
-                selectedFile = null;
-                uploadDetails.style.display = "none";
+                resetUploadForm();
                 return;
             }
 
             selectedFile = file;
             uploaderNameInput.value = "";
             videoTitleInput.value = "";
+            videoBioInput.value = "";
+            bioCounter.innerText = `0 / ${MAX_BIO_LENGTH}`;
+            agreeTermsInput.checked = false;
             uploadDetails.style.display = "block";
-            statusDiv.innerText = "اكتب اسمك وعنوان الفيديو ثم اضغط نشر.";
+            statusDiv.innerText = "املأ البيانات ووافق على الشروط والأحكام ثم اضغط نشر.";
         });
 
         cancelBtn.addEventListener('click', () => {
-            selectedFile = null;
-            videoInput.value = "";
-            uploaderNameInput.value = "";
-            videoTitleInput.value = "";
-            uploadDetails.style.display = "none";
+            resetUploadForm();
             statusDiv.innerText = "جاهز...";
         });
 
@@ -456,9 +780,16 @@
 
             const { name: uploaderName, isOwner } = resolveUserName(uploaderNameInput.value);
             const videoTitle = videoTitleInput.value.trim();
+            const videoBio = videoBioInput.value.trim().slice(0, MAX_BIO_LENGTH);
 
             if (!uploaderName || !videoTitle) {
                 statusDiv.innerText = "اكتب اسمك وعنوان الفيديو قبل النشر.";
+                return;
+            }
+
+            if (!agreeTermsInput.checked) {
+                statusDiv.innerText = "يجب الموافقة على الشروط والأحكام قبل نشر الفيديو.";
+                agreeTermsInput.focus();
                 return;
             }
 
@@ -480,6 +811,7 @@
                     uploader: uploaderName,
                     isOwner: isOwner,
                     title: videoTitle,
+                    bio: videoBio,
                     url: data.secure_url,
                     views: 0,
                     likes: 0,
@@ -489,17 +821,18 @@
 
                 selectedVideoId = docRef.id;
 
+                if (!ownedVideoIds.includes(docRef.id)) {
+                    ownedVideoIds.push(docRef.id);
+                    localStorage.setItem('minitube_owned_videos', JSON.stringify(ownedVideoIds));
+                }
+
                 if (isOwner) {
                     isOwnerSession = true;
                     localStorage.setItem('minitube_is_owner', 'true');
                 }
 
                 statusDiv.innerText = "تم النشر بنجاح!";
-                selectedFile = null;
-                videoInput.value = "";
-                uploaderNameInput.value = "";
-                videoTitleInput.value = "";
-                uploadDetails.style.display = "none";
+                resetUploadForm();
             } catch (err) {
                 statusDiv.innerText = "خطأ: " + err.message;
             } finally {
@@ -510,8 +843,9 @@
         window.selectVideo = function(id) {
             selectedVideoId = id;
             editingCommentKey = null;
-            renderLeftList(latestVideos);
-            renderStage(latestVideos, true);
+            const filtered = getFilteredVideos(latestVideos, currentSearchQuery);
+            renderLeftList(filtered);
+            renderStage(filtered, true);
         };
 
         window.deleteVideo = async function(id) {
@@ -604,16 +938,27 @@
         };
 
         window.startEditComment = function(videoId, commentId) {
+            const targetVideo = latestVideos.find(v => v.id === videoId);
+            if (!canEditVideoComments(targetVideo)) {
+                statusDiv.innerText = "غير مسموح! فقط صاحب الفيديو أو صاحب الكود AA00 يمكنه تعديل التعليقات.";
+                return;
+            }
             editingCommentKey = `${videoId}::${commentId}`;
-            renderStage(latestVideos);
+            refreshViews();
         };
 
         window.cancelEditComment = function() {
             editingCommentKey = null;
-            renderStage(latestVideos);
+            refreshViews();
         };
 
         window.saveEditComment = async function(videoId, commentId) {
+            const targetVideo = latestVideos.find(v => v.id === videoId);
+            if (!canEditVideoComments(targetVideo)) {
+                statusDiv.innerText = "غير مسموح! فقط صاحب الفيديو أو صاحب الكود AA00 يمكنه تعديل التعليقات.";
+                return;
+            }
+
             const editInputEl = document.getElementById(`edit-comment-input-${videoId}-${commentId}`);
             if (!editInputEl) return;
 
@@ -623,7 +968,6 @@
                 return;
             }
 
-            const targetVideo = latestVideos.find(v => v.id === videoId);
             const currentComments = normalizeComments(targetVideo ? targetVideo.comments : []);
             const nextComments = currentComments.map(c =>
                 c.id === commentId ? { ...c, text: updatedText } : c
@@ -639,6 +983,72 @@
                 statusDiv.innerText = "خطأ في تعديل التعليق: " + err.message;
             }
         };
+
+        window.deleteComment = async function(videoId, commentId) {
+            const targetVideo = latestVideos.find(v => v.id === videoId);
+            const currentComments = normalizeComments(targetVideo ? targetVideo.comments : []);
+            const targetComment = currentComments.find(c => c.id === commentId);
+
+            if (!canDeleteComment(targetComment, targetVideo)) {
+                statusDiv.innerText = "تقدر تمسح تعليقك فقط.";
+                return;
+            }
+
+            const nextComments = currentComments.filter(c => c.id !== commentId);
+
+            try {
+                await updateDoc(doc(db, "videos", videoId), {
+                    comments: nextComments
+                });
+                if (editingCommentKey === `${videoId}::${commentId}`) {
+                    editingCommentKey = null;
+                }
+                statusDiv.innerText = "تم مسح التعليق.";
+            } catch (err) {
+                statusDiv.innerText = "خطأ في مسح التعليق: " + err.message;
+            }
+        };
+
+        function attachWatchTracker(videoEl, videoId) {
+            let lastTime = null;
+
+            videoEl.addEventListener('play', () => {
+                lastTime = videoEl.currentTime;
+            });
+
+            videoEl.addEventListener('seeking', () => {
+                lastTime = videoEl.currentTime;
+            });
+
+            videoEl.addEventListener('timeupdate', async () => {
+                if (videoEl.paused || videoEl.ended) {
+                    lastTime = videoEl.currentTime;
+                    return;
+                }
+
+                const currentTime = videoEl.currentTime;
+                if (lastTime !== null && currentTime > lastTime) {
+                    const delta = currentTime - lastTime;
+                    if (delta > 0 && delta <= 3 && !countedViewSessionIds.has(videoId)) {
+                        const prevWatched = watchAccumulator.get(videoId) || 0;
+                        const nextWatched = prevWatched + delta;
+                        watchAccumulator.set(videoId, nextWatched);
+
+                        if (nextWatched >= REQUIRED_WATCH_SECONDS) {
+                            countedViewSessionIds.add(videoId);
+                            try {
+                                await updateDoc(doc(db, "videos", videoId), {
+                                    views: increment(1)
+                                });
+                            } catch (err) {
+                                countedViewSessionIds.delete(videoId);
+                            }
+                        }
+                    }
+                }
+                lastTime = currentTime;
+            });
+        }
 
         function appendAuthorLabel(container, name, isOwner) {
             container.innerHTML = "";
@@ -672,7 +1082,10 @@
             videoListLeft.innerHTML = "";
 
             if (!videos.length) {
-                videoListLeft.innerHTML = `<div style="font-size:13px; color:#666;">لا توجد فيديوهات بعد.</div>`;
+                const msg = currentSearchQuery.trim()
+                    ? `لا توجد فيديوهات مطابقة لـ "${currentSearchQuery.trim()}".`
+                    : "لا توجد فيديوهات بعد.";
+                videoListLeft.innerHTML = `<div style="font-size:13px; color:#666;">${msg}</div>`;
                 return;
             }
 
@@ -693,11 +1106,16 @@
 
                 const meta = document.createElement('div');
                 meta.className = "thumb-meta";
-                meta.innerText = `مشاهدات: 0 | إعجابات: ${v.likes || 0}`;
+                meta.innerText = `مشاهدات: ${v.views || 0} | إعجابات: ${v.likes || 0}`;
+
+                const dateMeta = document.createElement('div');
+                dateMeta.className = "thumb-meta";
+                dateMeta.innerText = `تاريخ النشر: ${formatExactDate(v.createdAt)}`;
 
                 item.appendChild(preview);
                 item.appendChild(title);
                 item.appendChild(meta);
+                item.appendChild(dateMeta);
                 videoListLeft.appendChild(item);
             });
         }
@@ -705,31 +1123,45 @@
         function renderStage(videos, forceReloadVideo = false) {
             const activeVideo = videos.find(v => v.id === selectedVideoId);
             if (!activeVideo) {
-                playerStage.innerHTML = `<div style="color:#666666; font-size:14px;">اختر فيديو من القائمة أو ارفع فيديو جديد لبدء المشاهدة.</div>`;
+                const emptyMsg = currentSearchQuery.trim()
+                    ? "لا توجد نتائج مطابقة للبحث الحالي."
+                    : "اختر فيديو من القائمة أو ارفع فيديو جديد لبدء المشاهدة.";
+                playerStage.innerHTML = `<div style="color:#666666; font-size:14px;">${emptyMsg}</div>`;
                 return;
             }
 
             let bigVid = playerStage.querySelector('.big-video');
-            const currentSrc = bigVid ? bigVid.getAttribute('data-vid-id') : null;
+            const currentVidId = bigVid ? bigVid.getAttribute('data-vid-id') : null;
 
-            if (!bigVid || currentSrc !== activeVideo.id || forceReloadVideo) {
+            if (!bigVid || currentVidId !== activeVideo.id || forceReloadVideo) {
                 playerStage.innerHTML = `
                     <video class="big-video" data-vid-id="${activeVideo.id}" controls src="${activeVideo.url}"></video>
                     <div class="big-title"></div>
                     <div class="big-author"></div>
+                    <div class="publish-date-line"></div>
+                    <div class="video-bio-box"></div>
                     <div class="stats-bar"></div>
                     <div class="comments-box"></div>
                 `;
                 bigVid = playerStage.querySelector('.big-video');
+                attachWatchTracker(bigVid, activeVideo.id);
             }
 
             const titleEl = playerStage.querySelector('.big-title');
             const authorEl = playerStage.querySelector('.big-author');
+            const dateEl = playerStage.querySelector('.publish-date-line');
+            const bioEl = playerStage.querySelector('.video-bio-box');
             const statsEl = playerStage.querySelector('.stats-bar');
             const commentsBox = playerStage.querySelector('.comments-box');
 
             if (titleEl) titleEl.innerText = activeVideo.title || "فيديو";
             if (authorEl) appendUploaderLine(authorEl, activeVideo);
+            if (dateEl) dateEl.innerText = `تاريخ النشر: ${formatExactDate(activeVideo.createdAt)}`;
+
+            if (bioEl) {
+                const bioText = (activeVideo.bio || "").trim();
+                bioEl.innerText = bioText ? `البايو: ${bioText}` : "البايو: لا يوجد بايو لهذا المقطع.";
+            }
 
             const isLiked = likedIds.includes(activeVideo.id);
             const deleteHtml = isOwnerSession
@@ -738,7 +1170,7 @@
 
             if (statsEl) {
                 statsEl.innerHTML = `
-                    <span>مشاهدات: 0</span>
+                    <span>مشاهدات: ${activeVideo.views || 0}</span>
                     <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${activeVideo.id}')">
                         ${isLiked ? 'إلغاء الإعجاب' : 'أعجبني'} (${activeVideo.likes || 0})
                     </button>
@@ -748,6 +1180,7 @@
             }
 
             const comments = normalizeComments(activeVideo.comments);
+            const userCanEditComments = canEditVideoComments(activeVideo);
             commentsBox.innerHTML = "";
 
             const cHeader = document.createElement('div');
@@ -761,14 +1194,14 @@
                 const row = document.createElement('div');
                 row.className = "comment-item";
 
-                const isEditingThis = editingCommentKey === `${activeVideo.id}::${cItem.id}`;
+                const isEditingThis = editingCommentKey === `${activeVideo.id}::${cItem.id}` && userCanEditComments;
 
                 if (isEditingThis) {
                     const editInput = document.createElement('input');
                     editInput.type = "text";
                     editInput.id = `edit-comment-input-${activeVideo.id}-${cItem.id}`;
                     editInput.value = cItem.text;
-                    editInput.style.width = "70%";
+                    editInput.style.width = "65%";
 
                     const saveBtn = document.createElement('button');
                     saveBtn.type = "button";
@@ -798,13 +1231,28 @@
 
                     leftTextWrap.appendChild(document.createTextNode(`: ${cItem.text}`));
 
-                    const editBtn = document.createElement('button');
-                    editBtn.type = "button";
-                    editBtn.innerText = "تعديل";
-                    editBtn.onclick = () => window.startEditComment(activeVideo.id, cItem.id);
+                    const actionsWrap = document.createElement('div');
+                    actionsWrap.className = "comment-actions";
+
+                    if (userCanEditComments) {
+                        const editBtn = document.createElement('button');
+                        editBtn.type = "button";
+                        editBtn.innerText = "تعديل";
+                        editBtn.onclick = () => window.startEditComment(activeVideo.id, cItem.id);
+                        actionsWrap.appendChild(editBtn);
+                    }
+
+                    if (canDeleteComment(cItem, activeVideo)) {
+                        const delCommentBtn = document.createElement('button');
+                        delCommentBtn.type = "button";
+                        delCommentBtn.className = "delete-btn";
+                        delCommentBtn.innerText = "مسح";
+                        delCommentBtn.onclick = () => window.deleteComment(activeVideo.id, cItem.id);
+                        actionsWrap.appendChild(delCommentBtn);
+                    }
 
                     topLine.appendChild(leftTextWrap);
-                    topLine.appendChild(editBtn);
+                    topLine.appendChild(actionsWrap);
                     row.appendChild(topLine);
                 }
 
@@ -837,7 +1285,7 @@
 
             const note = document.createElement('div');
             note.className = "comment-cooldown-note";
-            note.innerText = "مسموح تعليقات غير محدودة (دقيقة كاملة بين كل تعليق)، واسم اليوزر إجباري.";
+            note.innerText = "دقيقة واحدة بين كل تعليق، اسم اليوزر إجباري، التعديل لصاحب الفيديو أو AA00 فقط، والمسح لمن كتب التعليق.";
             commentsBox.appendChild(note);
         }
     </script>
