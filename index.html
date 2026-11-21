@@ -410,7 +410,7 @@
 انا انس رائد
 مشروع الفا تجريبي يحاول محاكاه كيف تم صناعه يويتوب
 شكرا لي جميع
-جميع حقوق و الوثائق محفوظه لدا أنس رائد</div>
+جميع حقوق و الوثائق منسوبه لي أنس رائد</div>
             <button id="closeInfoBtn" type="button">إغلاق</button>
         </div>
     </div>
@@ -940,7 +940,7 @@
         window.startEditComment = function(videoId, commentId) {
             const targetVideo = latestVideos.find(v => v.id === videoId);
             if (!canEditVideoComments(targetVideo)) {
-                statusDiv.innerText = "غير مسموح! فقط صاحب الفيديو أو صاحب الكود AA00 يمكنه تعديل التعليقات.";
+                statusDiv.innerText = "غير مسموح! فقط صاحب الفيديو يمكنه تعديل التعليقات.";
                 return;
             }
             editingCommentKey = `${videoId}::${commentId}`;
@@ -955,7 +955,7 @@
         window.saveEditComment = async function(videoId, commentId) {
             const targetVideo = latestVideos.find(v => v.id === videoId);
             if (!canEditVideoComments(targetVideo)) {
-                statusDiv.innerText = "غير مسموح! فقط صاحب الفيديو أو صاحب الكود AA00 يمكنه تعديل التعليقات.";
+                statusDiv.innerText = "غير مسموح! فقط صاحب الفيديو أو صاحب الكود  يمكنه تعديل التعليقات.";
                 return;
             }
 
