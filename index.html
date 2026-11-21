@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiniTube - تجربة</title>
+    <title>MiniTube - مشاركة حية</title>
     <style>
         * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
         body {
@@ -100,9 +100,31 @@
 
     <div class="feed" id="videoFeed"></div>
 
-    <script>
-   const CLOUD_NAME = "t3niaerg";
-const UPLOAD_PRESET = "gnhe0akq";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import {
+            getFirestore, collection, addDoc, onSnapshot,
+            query, orderBy, doc, updateDoc, increment
+        } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+        // إعدادات Cloudinary
+        const CLOUD_NAME = "t3niaerg";
+        const UPLOAD_PRESET = "gnhe0akq";
+
+        // إعدادات Firebase الخاصة بمشروعك
+        const firebaseConfig = {
+            apiKey: "AIzaSyDoFI_AFh_xZpPIQCIp0mqfaJ_wZDJrUTQ",
+            authDomain: "minitube-43b9c.firebaseapp.com",
+            projectId: "minitube-43b9c",
+            storageBucket: "minitube-43b9c.firebasestorage.app",
+            messagingSenderId: "531718212714",
+            appId: "1:531718212714:web:569b629c348d36faf5ce13",
+            measurementId: "G-TQD9G8DHJL"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const videosRef = collection(db, "videos");
 
         const MAX_SIZE_MB = 50;
         const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
@@ -111,8 +133,18 @@ const UPLOAD_PRESET = "gnhe0akq";
         const statusDiv = document.getElementById('status');
         const videoFeed = document.getElementById('videoFeed');
 
-        let videos = JSON.parse(localStorage.getItem('minitube_videos')) || [];
-        renderVideos();
+        // تتبع اللايكات الخاصة بالمتصفح الحالي فقط لتغيير شكل الزر
+        let likedIds = JSON.parse(localStorage.getItem('minitube_liked_ids')) || [];
+
+        // الاستماع المباشر لأي فيديو جديد أو تحديث في المشاهدات واللايكات للجميع
+        const q = query(videosRef, orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const videos = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderVideos(videos);
+        }, (err) => {
+            statusDiv.innerText = "❌ خطأ في الاتصال بقاعدة البيانات: " + err.message;
+            statusDiv.style.color = "#f44336";
+        });
 
         videoInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
@@ -142,18 +174,16 @@ const UPLOAD_PRESET = "gnhe0akq";
                 const data = await response.json();
 
                 if (data.secure_url) {
-                    statusDiv.innerText = "✅ تم الرفع بنجاح!";
-                    statusDiv.style.color = "#4caf50";
-
-                    videos.unshift({
-                        id: Date.now(),
+                    await addDoc(videosRef, {
                         title: file.name,
                         url: data.secure_url,
                         views: 0,
                         likes: 0,
-                        isLiked: false
+                        createdAt: Date.now()
                     });
-                    saveAndRender();
+
+                    statusDiv.innerText = "✅ تم الرفع ونشره للجميع بنجاح!";
+                    statusDiv.style.color = "#4caf50";
                 } else {
                     throw new Error(data.error?.message || "فشل الرفع");
                 }
@@ -164,47 +194,47 @@ const UPLOAD_PRESET = "gnhe0akq";
             videoInput.value = "";
         });
 
-        function addView(id) {
-            const video = videos.find(v => v.id === id);
-            if (video) {
-                video.views += 1;
-                localStorage.setItem('minitube_videos', JSON.stringify(videos));
-                document.getElementById(`views-${id}`).innerText = `👁️ ${video.views} مشاهدة`;
+        window.addView = async function(id) {
+            const docRef = doc(db, "videos", id);
+            await updateDoc(docRef, {
+                views: increment(1)
+            });
+        };
+
+        window.toggleLike = async function(id, currentLikes) {
+            const docRef = doc(db, "videos", id);
+            const alreadyLiked = likedIds.includes(id);
+
+            if (alreadyLiked) {
+                likedIds = likedIds.filter(item => item !== id);
+                await updateDoc(docRef, {
+                    likes: increment(-1)
+                });
+            } else {
+                likedIds.push(id);
+                await updateDoc(docRef, {
+                    likes: increment(1)
+                });
             }
-        }
+            localStorage.setItem('minitube_liked_ids', JSON.stringify(likedIds));
+        };
 
-        function toggleLike(id) {
-            const video = videos.find(v => v.id === id);
-            if (video) {
-                if (video.isLiked) {
-                    video.likes -= 1;
-                    video.isLiked = false;
-                } else {
-                    video.likes += 1;
-                    video.isLiked = true;
-                }
-                saveAndRender();
-            }
-        }
-
-        function saveAndRender() {
-            localStorage.setItem('minitube_videos', JSON.stringify(videos));
-            renderVideos();
-        }
-
-        function renderVideos() {
-            videoFeed.innerHTML = videos.map(v => `
-                <div class="video-card">
-                    <video controls src="${v.url}" onplay="addView(${v.id})"></video>
-                    <div class="video-title">${v.title}</div>
-                    <div class="video-stats">
-                        <span id="views-${v.id}">👁️ ${v.views} مشاهدة</span>
-                        <button class="like-btn ${v.isLiked ? 'liked' : ''}" onclick="toggleLike(${v.id})">
-                            👍 ${v.likes} أعجبني
-                        </button>
+        function renderVideos(videos) {
+            videoFeed.innerHTML = videos.map(v => {
+                const isLiked = likedIds.includes(v.id);
+                return `
+                    <div class="video-card">
+                        <video controls src="${v.url}" onplay="addView('${v.id}')"></video>
+                        <div class="video-title">${v.title}</div>
+                        <div class="video-stats">
+                            <span>👁️ ${v.views || 0} مشاهدة</span>
+                            <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${v.id}', ${v.likes || 0})">
+                                👍 ${v.likes || 0} أعجبني
+                            </button>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
     </script>
 </body>
