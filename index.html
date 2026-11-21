@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
     <title>MiniTube - مشاركة حية</title>
     <style>
         * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
@@ -201,7 +202,7 @@
             });
         };
 
-        window.toggleLike = async function(id, currentLikes) {
+        window.toggleLike = async function(id) {
             const docRef = doc(db, "videos", id);
             const alreadyLiked = likedIds.includes(id);
 
@@ -219,22 +220,54 @@
             localStorage.setItem('minitube_liked_ids', JSON.stringify(likedIds));
         };
 
+        function escapeHtml(text = "") {
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
         function renderVideos(videos) {
-            videoFeed.innerHTML = videos.map(v => {
+            const activeIds = new Set(videos.map(v => v.id));
+
+            Array.from(videoFeed.children).forEach(child => {
+                const childId = child.id.replace("card-", "");
+                if (!activeIds.has(childId)) {
+                    child.remove();
+                }
+            });
+
+            videos.forEach(v => {
                 const isLiked = likedIds.includes(v.id);
-                return `
-                    <div class="video-card">
-                        <video controls src="${v.url}" onplay="addView('${v.id}')"></video>
-                        <div class="video-title">${v.title}</div>
+                let card = document.getElementById(`card-${v.id}`);
+
+                if (!card) {
+                    card = document.createElement('div');
+                    card.className = 'video-card';
+                    card.id = `card-${v.id}`;
+                    card.innerHTML = `
+                        <video controls playsinline preload="metadata" src="${escapeHtml(v.url)}" onplay="addView('${v.id}')"></video>
+                        <div class="video-title">${escapeHtml(v.title)}</div>
                         <div class="video-stats">
-                            <span>👁️ ${v.views || 0} مشاهدة</span>
-                            <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${v.id}', ${v.likes || 0})">
-                                👍 ${v.likes || 0} أعجبني
+                            <span class="views-count">👁️ ${v.views || 0} مشاهدة</span>
+                            <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${v.id}')">
+                                👍 <span class="likes-count">${v.likes || 0}</span> أعجبني
                             </button>
                         </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                } else {
+                    const viewsEl = card.querySelector('.views-count');
+                    const likesCountEl = card.querySelector('.likes-count');
+                    const likeBtnEl = card.querySelector('.like-btn');
+
+                    if (viewsEl) viewsEl.innerText = `👁️ ${v.views || 0} مشاهدة`;
+                    if (likesCountEl) likesCountEl.innerText = v.likes || 0;
+                    if (likeBtnEl) likeBtnEl.classList.toggle('liked', isLiked);
+                }
+
+                videoFeed.appendChild(card);
+            });
         }
     </script>
 </body>
