@@ -27,6 +27,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
         .logo {
             font-size: 22px;
@@ -77,6 +78,44 @@
         }
         button:hover {
             background: #e0e0e0;
+        }
+        .info-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .info-backdrop.open {
+            display: flex;
+        }
+        .info-box {
+            background: #ffffff;
+            color: #111111;
+            border: 2px solid #888888;
+            max-width: 440px;
+            width: 100%;
+            padding: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        }
+        .info-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dddddd;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .info-lines {
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-line;
+            margin-bottom: 14px;
         }
         .main-layout {
             display: flex;
@@ -198,10 +237,29 @@
         .comment-item {
             background: #f9f9f9;
             border: 1px solid #e5e5e5;
-            padding: 6px 8px;
+            padding: 8px;
             margin: 6px 0;
             font-size: 13px;
             color: #222222;
+        }
+        .comment-meta-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .comment-form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+            align-items: center;
+        }
+        .comment-cooldown-note {
+            font-size: 12px;
+            color: #666666;
+            margin-top: 6px;
         }
         @media (max-width: 820px) {
             .main-layout {
@@ -219,12 +277,28 @@
     <div class="topbar">
         <div class="brand-area">
             <div class="logo">MiniTube</div>
+            <button id="aboutBtn" type="button">عن المشروع</button>
             <span class="limit-note">الحد الأقصى: 50MB</span>
         </div>
 
         <div class="upload-area">
             <input type="file" id="videoInput" accept="video/*">
             <span id="status">جاهز...</span>
+        </div>
+    </div>
+
+    <div id="infoModal" class="info-backdrop" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+        <div class="info-box">
+            <div class="info-box-header">
+                <span id="infoModalTitle">معلومات المشروع</span>
+                <button id="closeInfoTopBtn" type="button">✕</button>
+            </div>
+            <div class="info-lines">السلام عليكم
+انا انس رائد
+مشروع الفا تجريبي يحاول محاكاه كيف تم صناعه يويتوب
+شكرا لي جميع
+جميع حقوق و الوثائق محفوظه لدا أنس رائد</div>
+            <button id="closeInfoBtn" type="button">إغلاق</button>
         </div>
     </div>
 
@@ -256,14 +330,14 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import {
             getFirestore, collection, addDoc, onSnapshot,
-            query, orderBy, doc, updateDoc, deleteDoc, increment, arrayUnion
+            query, orderBy, doc, updateDoc, deleteDoc, increment
         } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const CLOUD_NAME = "t3niaerg";
         const UPLOAD_PRESET = "gnhe0akq";
         const OWNER_CODE = "AA00";
         const OWNER_DISPLAY_NAME = "انس رائد";
-        const MAX_COMMENTS = 3;
+        const COMMENT_COOLDOWN_MS = 60 * 1000;
 
         const firebaseConfig = {
             apiKey: "AIzaSyDoFI_AFh_xZpPIQCIp0mqfaJ_wZDJrUTQ",
@@ -280,6 +354,10 @@
         const videosRef = collection(db, "videos");
 
         const MAX_SIZE_BYTES = 50 * 1024 * 1024;
+        const aboutBtn = document.getElementById('aboutBtn');
+        const infoModal = document.getElementById('infoModal');
+        const closeInfoBtn = document.getElementById('closeInfoBtn');
+        const closeInfoTopBtn = document.getElementById('closeInfoTopBtn');
         const videoInput = document.getElementById('videoInput');
         const uploadDetails = document.getElementById('uploadDetails');
         const uploaderNameInput = document.getElementById('uploaderName');
@@ -293,8 +371,30 @@
         let selectedFile = null;
         let likedIds = JSON.parse(localStorage.getItem('minitube_liked_ids')) || [];
         let isOwnerSession = localStorage.getItem('minitube_is_owner') === 'true';
+        let savedCommentUser = localStorage.getItem('minitube_comment_user') || '';
+        let lastCommentAt = Number(localStorage.getItem('minitube_last_comment_at')) || 0;
         let latestVideos = [];
         let selectedVideoId = null;
+        let editingCommentKey = null;
+
+        aboutBtn.addEventListener('click', () => {
+            infoModal.classList.add('open');
+        });
+
+        function closeInfoModal() {
+            infoModal.classList.remove('open');
+        }
+
+        closeInfoBtn.addEventListener('click', closeInfoModal);
+        closeInfoTopBtn.addEventListener('click', closeInfoModal);
+        infoModal.addEventListener('click', (e) => {
+            if (e.target === infoModal) closeInfoModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && infoModal.classList.contains('open')) {
+                closeInfoModal();
+            }
+        });
 
         const q = query(videosRef, orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
@@ -340,7 +440,7 @@
             statusDiv.innerText = "جاهز...";
         });
 
-        function resolveUploader(rawInput) {
+        function resolveUserName(rawInput) {
             const cleaned = (rawInput || "").trim();
             if (cleaned.toUpperCase() === OWNER_CODE) {
                 return { name: OWNER_DISPLAY_NAME, isOwner: true };
@@ -354,7 +454,7 @@
                 return;
             }
 
-            const { name: uploaderName, isOwner } = resolveUploader(uploaderNameInput.value);
+            const { name: uploaderName, isOwner } = resolveUserName(uploaderNameInput.value);
             const videoTitle = videoTitleInput.value.trim();
 
             if (!uploaderName || !videoTitle) {
@@ -409,6 +509,7 @@
 
         window.selectVideo = function(id) {
             selectedVideoId = id;
+            editingCommentKey = null;
             renderLeftList(latestVideos);
             renderStage(latestVideos, true);
         };
@@ -435,29 +536,125 @@
             localStorage.setItem('minitube_liked_ids', JSON.stringify(likedIds));
         };
 
-        window.addComment = async function(id, currentCount) {
-            if (currentCount >= MAX_COMMENTS) {
-                statusDiv.innerText = "الحد الأقصى 3 تعليقات لهذا الفيديو.";
+        function normalizeComments(rawComments) {
+            if (!Array.isArray(rawComments)) return [];
+            return rawComments.map((item, index) => {
+                if (typeof item === "string") {
+                    return { id: `c_${index}`, author: "مستخدم", isOwner: false, text: item };
+                }
+                return {
+                    id: item.id || `c_${index}`,
+                    author: item.author || "مستخدم",
+                    isOwner: Boolean(item.isOwner),
+                    text: item.text || ""
+                };
+            });
+        }
+
+        window.addComment = async function(videoId) {
+            const now = Date.now();
+            const remainingMs = COMMENT_COOLDOWN_MS - (now - lastCommentAt);
+            if (remainingMs > 0) {
+                const secLeft = Math.ceil(remainingMs / 1000);
+                statusDiv.innerText = `انتظر ${secLeft} ثانية قبل إضافة تعليق جديد (دقيقة كاملة بين كل تعليق).`;
                 return;
             }
 
-            const inputEl = document.getElementById(`comment-input-${id}`);
-            if (!inputEl) return;
+            const userInputEl = document.getElementById(`comment-user-${videoId}`);
+            const textInputEl = document.getElementById(`comment-input-${videoId}`);
+            if (!userInputEl || !textInputEl) return;
 
-            const text = inputEl.value.trim();
-            if (!text) return;
+            const { name: authorName, isOwner } = resolveUserName(userInputEl.value);
+            const text = textInputEl.value.trim();
+
+            if (!authorName) {
+                statusDiv.innerText = "أنت مجبر تكتب اسم يوزر لك قبل إضافة التعليق!";
+                userInputEl.focus();
+                return;
+            }
+
+            if (!text) {
+                statusDiv.innerText = "اكتب نص التعليق أولاً.";
+                textInputEl.focus();
+                return;
+            }
+
+            const targetVideo = latestVideos.find(v => v.id === videoId);
+            const currentComments = normalizeComments(targetVideo ? targetVideo.comments : []);
+            const newComment = {
+                id: `c_${now}_${Math.random().toString(36).slice(2, 7)}`,
+                author: authorName,
+                isOwner: isOwner,
+                text: text
+            };
 
             try {
-                await updateDoc(doc(db, "videos", id), {
-                    comments: arrayUnion(text)
+                await updateDoc(doc(db, "videos", videoId), {
+                    comments: [...currentComments, newComment]
                 });
-                inputEl.value = "";
+                lastCommentAt = now;
+                localStorage.setItem('minitube_last_comment_at', String(lastCommentAt));
+                savedCommentUser = authorName;
+                localStorage.setItem('minitube_comment_user', savedCommentUser);
+                textInputEl.value = "";
+                statusDiv.innerText = "تم إضافة التعليق.";
             } catch (err) {
                 statusDiv.innerText = "خطأ في إضافة التعليق: " + err.message;
             }
         };
 
-        function appendAuthorWithBadge(container, v) {
+        window.startEditComment = function(videoId, commentId) {
+            editingCommentKey = `${videoId}::${commentId}`;
+            renderStage(latestVideos);
+        };
+
+        window.cancelEditComment = function() {
+            editingCommentKey = null;
+            renderStage(latestVideos);
+        };
+
+        window.saveEditComment = async function(videoId, commentId) {
+            const editInputEl = document.getElementById(`edit-comment-input-${videoId}-${commentId}`);
+            if (!editInputEl) return;
+
+            const updatedText = editInputEl.value.trim();
+            if (!updatedText) {
+                statusDiv.innerText = "لا يمكن أن يكون التعليق فارغاً.";
+                return;
+            }
+
+            const targetVideo = latestVideos.find(v => v.id === videoId);
+            const currentComments = normalizeComments(targetVideo ? targetVideo.comments : []);
+            const nextComments = currentComments.map(c =>
+                c.id === commentId ? { ...c, text: updatedText } : c
+            );
+
+            try {
+                await updateDoc(doc(db, "videos", videoId), {
+                    comments: nextComments
+                });
+                editingCommentKey = null;
+                statusDiv.innerText = "تم تعديل التعليق.";
+            } catch (err) {
+                statusDiv.innerText = "خطأ في تعديل التعليق: " + err.message;
+            }
+        };
+
+        function appendAuthorLabel(container, name, isOwner) {
+            container.innerHTML = "";
+            container.appendChild(document.createTextNode(name || "مجهول"));
+
+            const hasOwnerBadge = Boolean(isOwner) || name === OWNER_DISPLAY_NAME;
+            if (hasOwnerBadge) {
+                const badge = document.createElement('span');
+                badge.className = "verified-badge";
+                badge.title = "صاحب موقع";
+                badge.textContent = "✓";
+                container.appendChild(badge);
+            }
+        }
+
+        function appendUploaderLine(container, v) {
             container.innerHTML = "";
             container.appendChild(document.createTextNode(`بواسطة: ${v.uploader || "مجهول"}`));
 
@@ -532,7 +729,7 @@
             const commentsBox = playerStage.querySelector('.comments-box');
 
             if (titleEl) titleEl.innerText = activeVideo.title || "فيديو";
-            if (authorEl) appendAuthorWithBadge(authorEl, activeVideo);
+            if (authorEl) appendUploaderLine(authorEl, activeVideo);
 
             const isLiked = likedIds.includes(activeVideo.id);
             const deleteHtml = isOwnerSession
@@ -550,51 +747,98 @@
                 `;
             }
 
-            const comments = Array.isArray(activeVideo.comments) ? activeVideo.comments : [];
-            const count = comments.length;
-            const reachedLimit = count >= MAX_COMMENTS;
-
+            const comments = normalizeComments(activeVideo.comments);
             commentsBox.innerHTML = "";
+
             const cHeader = document.createElement('div');
             cHeader.style.fontWeight = "bold";
             cHeader.style.fontSize = "14px";
             cHeader.style.marginBottom = "6px";
-            cHeader.innerText = `التعليقات (${count}/${MAX_COMMENTS})`;
+            cHeader.innerText = `التعليقات (${comments.length})`;
             commentsBox.appendChild(cHeader);
 
-            comments.forEach((cText, idx) => {
-                const item = document.createElement('div');
-                item.className = "comment-item";
-                item.innerText = `${idx + 1}. ${cText}`;
-                commentsBox.appendChild(item);
+            comments.forEach((cItem, idx) => {
+                const row = document.createElement('div');
+                row.className = "comment-item";
+
+                const isEditingThis = editingCommentKey === `${activeVideo.id}::${cItem.id}`;
+
+                if (isEditingThis) {
+                    const editInput = document.createElement('input');
+                    editInput.type = "text";
+                    editInput.id = `edit-comment-input-${activeVideo.id}-${cItem.id}`;
+                    editInput.value = cItem.text;
+                    editInput.style.width = "70%";
+
+                    const saveBtn = document.createElement('button');
+                    saveBtn.type = "button";
+                    saveBtn.innerText = "حفظ";
+                    saveBtn.style.marginRight = "6px";
+                    saveBtn.onclick = () => window.saveEditComment(activeVideo.id, cItem.id);
+
+                    const cancelEditBtn = document.createElement('button');
+                    cancelEditBtn.type = "button";
+                    cancelEditBtn.innerText = "إلغاء";
+                    cancelEditBtn.style.marginRight = "4px";
+                    cancelEditBtn.onclick = () => window.cancelEditComment();
+
+                    row.appendChild(editInput);
+                    row.appendChild(saveBtn);
+                    row.appendChild(cancelEditBtn);
+                } else {
+                    const topLine = document.createElement('div');
+                    topLine.className = "comment-meta-line";
+
+                    const leftTextWrap = document.createElement('div');
+                    leftTextWrap.appendChild(document.createTextNode(`${idx + 1}. `));
+
+                    const authorSpan = document.createElement('strong');
+                    appendAuthorLabel(authorSpan, cItem.author, cItem.isOwner);
+                    leftTextWrap.appendChild(authorSpan);
+
+                    leftTextWrap.appendChild(document.createTextNode(`: ${cItem.text}`));
+
+                    const editBtn = document.createElement('button');
+                    editBtn.type = "button";
+                    editBtn.innerText = "تعديل";
+                    editBtn.onclick = () => window.startEditComment(activeVideo.id, cItem.id);
+
+                    topLine.appendChild(leftTextWrap);
+                    topLine.appendChild(editBtn);
+                    row.appendChild(topLine);
+                }
+
+                commentsBox.appendChild(row);
             });
 
-            if (reachedLimit) {
-                const note = document.createElement('div');
-                note.style.color = "#666666";
-                note.style.fontSize = "12px";
-                note.style.marginTop = "6px";
-                note.innerText = "تم الوصول للحد الأقصى (3 تعليقات).";
-                commentsBox.appendChild(note);
-            } else {
-                const formRow = document.createElement('div');
-                formRow.style.marginTop = "8px";
+            const formRow = document.createElement('div');
+            formRow.className = "comment-form-row";
 
-                const input = document.createElement('input');
-                input.type = "text";
-                input.id = `comment-input-${activeVideo.id}`;
-                input.placeholder = "اكتب تعليقاً...";
+            const userInput = document.createElement('input');
+            userInput.type = "text";
+            userInput.id = `comment-user-${activeVideo.id}`;
+            userInput.placeholder = "اسم اليوزر (مطلوب)";
+            userInput.value = savedCommentUser;
 
-                const btn = document.createElement('button');
-                btn.type = "button";
-                btn.innerText = "إضافة تعليق";
-                btn.style.marginRight = "6px";
-                btn.onclick = () => window.addComment(activeVideo.id, count);
+            const textInput = document.createElement('input');
+            textInput.type = "text";
+            textInput.id = `comment-input-${activeVideo.id}`;
+            textInput.placeholder = "اكتب تعليقاً...";
 
-                formRow.appendChild(input);
-                formRow.appendChild(btn);
-                commentsBox.appendChild(formRow);
-            }
+            const addBtn = document.createElement('button');
+            addBtn.type = "button";
+            addBtn.innerText = "إضافة تعليق";
+            addBtn.onclick = () => window.addComment(activeVideo.id);
+
+            formRow.appendChild(userInput);
+            formRow.appendChild(textInput);
+            formRow.appendChild(addBtn);
+            commentsBox.appendChild(formRow);
+
+            const note = document.createElement('div');
+            note.className = "comment-cooldown-note";
+            note.innerText = "مسموح تعليقات غير محدودة (دقيقة كاملة بين كل تعليق)، واسم اليوزر إجباري.";
+            commentsBox.appendChild(note);
         }
     </script>
 </body>
