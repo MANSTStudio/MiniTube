@@ -5,24 +5,265 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:,">
     <title>MiniTube</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, Tahoma, sans-serif; }
+        body {
+            background: #ffffff;
+            color: #111111;
+            margin: 0;
+            padding: 0;
+        }
+        .topbar {
+            background: #f4f4f4;
+            border-bottom: 1px solid #cccccc;
+            padding: 10px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: #cc0000;
+            border: 2px solid #cc0000;
+            background: #ffffff;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .limit-note {
+            font-size: 12px;
+            color: #555555;
+        }
+        .upload-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        #status {
+            font-size: 13px;
+            color: #b45309;
+            font-weight: bold;
+        }
+        #uploadDetails {
+            display: none;
+            background: #fafafa;
+            border-bottom: 1px solid #cccccc;
+            padding: 12px 18px;
+        }
+        #uploadDetails .row {
+            margin-bottom: 8px;
+        }
+        input[type="text"] {
+            padding: 5px 8px;
+            border: 1px solid #999999;
+            background: #ffffff;
+            color: #111111;
+        }
+        button {
+            padding: 5px 10px;
+            border: 1px solid #888888;
+            background: #eeeeee;
+            color: #111111;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        button:hover {
+            background: #e0e0e0;
+        }
+        .main-layout {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: flex-start;
+            gap: 18px;
+            padding: 16px 18px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .sidebar-left {
+            width: 330px;
+            min-width: 270px;
+            background: #fafafa;
+            border: 1px solid #cccccc;
+            padding: 10px;
+        }
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #dddddd;
+        }
+        .thumb-item {
+            border: 1px solid #dddddd;
+            background: #ffffff;
+            padding: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .thumb-item.active {
+            border-color: #cc0000;
+            background: #fff7f7;
+        }
+        .thumb-preview {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            background: #000000;
+            display: block;
+            margin-bottom: 6px;
+            pointer-events: none;
+        }
+        .thumb-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #111111;
+            margin-bottom: 3px;
+            word-break: break-word;
+        }
+        .thumb-meta {
+            font-size: 12px;
+            color: #666666;
+        }
+        .stage-area {
+            flex: 1;
+            min-width: 0;
+            background: #ffffff;
+            border: 1px solid #cccccc;
+            padding: 14px;
+        }
+        .big-video {
+            width: 100%;
+            max-height: 460px;
+            background: #000000;
+            display: block;
+        }
+        .big-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 12px 0 6px 0;
+            color: #111111;
+        }
+        .big-author {
+            font-size: 14px;
+            color: #444444;
+            margin-bottom: 10px;
+        }
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #1d9bf0;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 4px;
+            cursor: help;
+            vertical-align: middle;
+        }
+        .stats-bar {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 8px 0;
+            border-top: 1px solid #e5e5e5;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 13px;
+            color: #333333;
+        }
+        .like-btn.liked {
+            background: #cc0000;
+            color: #ffffff;
+            border-color: #990000;
+        }
+        .delete-btn {
+            background: #b91c1c;
+            color: #ffffff;
+            border-color: #7f1d1d;
+        }
+        .comments-box {
+            margin-top: 12px;
+        }
+        .comment-item {
+            background: #f9f9f9;
+            border: 1px solid #e5e5e5;
+            padding: 6px 8px;
+            margin: 6px 0;
+            font-size: 13px;
+            color: #222222;
+        }
+        @media (max-width: 820px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            .sidebar-left {
+                width: 100%;
+                min-width: 0;
+            }
+        }
+    </style>
 </head>
-<body style="background:#111; color:#fff; font-family:sans-serif; padding:20px;">
+<body>
 
-    <h2>MiniTube (أقل من 50MB)</h2>
-    <input type="file" id="videoInput" accept="video/*">
-    <div id="status" style="margin:10px 0; color:#ff6b00;">جاهز...</div>
-    <hr>
-    <div id="videoFeed"></div>
+    <div class="topbar">
+        <div class="brand-area">
+            <div class="logo">MiniTube</div>
+            <span class="limit-note">الحد الأقصى: 50MB</span>
+        </div>
+
+        <div class="upload-area">
+            <input type="file" id="videoInput" accept="video/*">
+            <span id="status">جاهز...</span>
+        </div>
+    </div>
+
+    <div id="uploadDetails">
+        <div class="row">
+            <label for="uploaderName">اسمك: </label>
+            <input type="text" id="uploaderName" placeholder="اكتب اسمك">
+        </div>
+        <div class="row">
+            <label for="videoTitle">عنوان الفيديو: </label>
+            <input type="text" id="videoTitle" placeholder="اكتب عنوان الفيديو">
+        </div>
+        <button id="publishBtn" type="button">نشر</button>
+        <button id="cancelBtn" type="button">إلغاء</button>
+    </div>
+
+    <div class="main-layout">
+        <aside class="sidebar-left">
+            <h3 class="sidebar-title">الفيديوهات</h3>
+            <div id="videoListLeft"></div>
+        </aside>
+
+        <section class="stage-area" id="playerStage">
+            <div style="color:#666666; font-size:14px;">اختر فيديو من القائمة أو ارفع فيديو جديد لبدء المشاهدة.</div>
+        </section>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import {
             getFirestore, collection, addDoc, onSnapshot,
-            query, orderBy, doc, updateDoc, increment
+            query, orderBy, doc, updateDoc, deleteDoc, increment, arrayUnion
         } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const CLOUD_NAME = "t3niaerg";
         const UPLOAD_PRESET = "gnhe0akq";
+        const OWNER_CODE = "AA00";
+        const OWNER_DISPLAY_NAME = "انس رائد";
+        const MAX_COMMENTS = 3;
 
         const firebaseConfig = {
             apiKey: "AIzaSyDoFI_AFh_xZpPIQCIp0mqfaJ_wZDJrUTQ",
@@ -40,33 +281,91 @@
 
         const MAX_SIZE_BYTES = 50 * 1024 * 1024;
         const videoInput = document.getElementById('videoInput');
+        const uploadDetails = document.getElementById('uploadDetails');
+        const uploaderNameInput = document.getElementById('uploaderName');
+        const videoTitleInput = document.getElementById('videoTitle');
+        const publishBtn = document.getElementById('publishBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
         const statusDiv = document.getElementById('status');
-        const videoFeed = document.getElementById('videoFeed');
+        const videoListLeft = document.getElementById('videoListLeft');
+        const playerStage = document.getElementById('playerStage');
 
+        let selectedFile = null;
         let likedIds = JSON.parse(localStorage.getItem('minitube_liked_ids')) || [];
-        let renderedIds = new Set();
+        let isOwnerSession = localStorage.getItem('minitube_is_owner') === 'true';
+        let latestVideos = [];
+        let selectedVideoId = null;
 
         const q = query(videosRef, orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
-            const videos = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderVideos(videos);
+            latestVideos = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            if (!latestVideos.length) {
+                selectedVideoId = null;
+            } else if (!selectedVideoId || !latestVideos.some(v => v.id === selectedVideoId)) {
+                selectedVideoId = latestVideos[0].id;
+            }
+
+            renderLeftList(latestVideos);
+            renderStage(latestVideos);
         }, (err) => {
             statusDiv.innerText = "خطأ Firestore: " + err.message;
         });
 
-        videoInput.addEventListener('change', async (e) => {
+        videoInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
             if (file.size > MAX_SIZE_BYTES) {
                 statusDiv.innerText = "مرفوض! أكبر من 50MB.";
                 videoInput.value = "";
+                selectedFile = null;
+                uploadDetails.style.display = "none";
                 return;
             }
 
+            selectedFile = file;
+            uploaderNameInput.value = "";
+            videoTitleInput.value = "";
+            uploadDetails.style.display = "block";
+            statusDiv.innerText = "اكتب اسمك وعنوان الفيديو ثم اضغط نشر.";
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            selectedFile = null;
+            videoInput.value = "";
+            uploaderNameInput.value = "";
+            videoTitleInput.value = "";
+            uploadDetails.style.display = "none";
+            statusDiv.innerText = "جاهز...";
+        });
+
+        function resolveUploader(rawInput) {
+            const cleaned = (rawInput || "").trim();
+            if (cleaned.toUpperCase() === OWNER_CODE) {
+                return { name: OWNER_DISPLAY_NAME, isOwner: true };
+            }
+            return { name: cleaned, isOwner: false };
+        }
+
+        publishBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                statusDiv.innerText = "اختر فيديو أولاً.";
+                return;
+            }
+
+            const { name: uploaderName, isOwner } = resolveUploader(uploaderNameInput.value);
+            const videoTitle = videoTitleInput.value.trim();
+
+            if (!uploaderName || !videoTitle) {
+                statusDiv.innerText = "اكتب اسمك وعنوان الفيديو قبل النشر.";
+                return;
+            }
+
+            publishBtn.disabled = true;
             statusDiv.innerText = "جاري الرفع...";
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', selectedFile);
             formData.append('upload_preset', UPLOAD_PRESET);
 
             try {
@@ -77,23 +376,51 @@
                 const data = await res.json();
                 if (!data.secure_url) throw new Error(data.error?.message || "فشل الرفع");
 
-                await addDoc(videosRef, {
-                    title: file.name,
+                const docRef = await addDoc(videosRef, {
+                    uploader: uploaderName,
+                    isOwner: isOwner,
+                    title: videoTitle,
                     url: data.secure_url,
                     views: 0,
                     likes: 0,
+                    comments: [],
                     createdAt: Date.now()
                 });
 
-                statusDiv.innerText = "تم الرفع بنجاح!";
+                selectedVideoId = docRef.id;
+
+                if (isOwner) {
+                    isOwnerSession = true;
+                    localStorage.setItem('minitube_is_owner', 'true');
+                }
+
+                statusDiv.innerText = "تم النشر بنجاح!";
+                selectedFile = null;
+                videoInput.value = "";
+                uploaderNameInput.value = "";
+                videoTitleInput.value = "";
+                uploadDetails.style.display = "none";
             } catch (err) {
                 statusDiv.innerText = "خطأ: " + err.message;
+            } finally {
+                publishBtn.disabled = false;
             }
-            videoInput.value = "";
         });
 
-        window.addView = async function(id) {
-            await updateDoc(doc(db, "videos", id), { views: increment(1) });
+        window.selectVideo = function(id) {
+            selectedVideoId = id;
+            renderLeftList(latestVideos);
+            renderStage(latestVideos, true);
+        };
+
+        window.deleteVideo = async function(id) {
+            if (!isOwnerSession) return;
+            try {
+                await deleteDoc(doc(db, "videos", id));
+                statusDiv.innerText = "تم حذف الفيديو.";
+            } catch (err) {
+                statusDiv.innerText = "خطأ في الحذف: " + err.message;
+            }
         };
 
         window.toggleLike = async function(id) {
@@ -108,53 +435,166 @@
             localStorage.setItem('minitube_liked_ids', JSON.stringify(likedIds));
         };
 
-        function renderVideos(videos) {
+        window.addComment = async function(id, currentCount) {
+            if (currentCount >= MAX_COMMENTS) {
+                statusDiv.innerText = "الحد الأقصى 3 تعليقات لهذا الفيديو.";
+                return;
+            }
+
+            const inputEl = document.getElementById(`comment-input-${id}`);
+            if (!inputEl) return;
+
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            try {
+                await updateDoc(doc(db, "videos", id), {
+                    comments: arrayUnion(text)
+                });
+                inputEl.value = "";
+            } catch (err) {
+                statusDiv.innerText = "خطأ في إضافة التعليق: " + err.message;
+            }
+        };
+
+        function appendAuthorWithBadge(container, v) {
+            container.innerHTML = "";
+            container.appendChild(document.createTextNode(`بواسطة: ${v.uploader || "مجهول"}`));
+
+            const hasOwnerBadge = Boolean(v.isOwner) || v.uploader === OWNER_DISPLAY_NAME;
+            if (hasOwnerBadge) {
+                const badge = document.createElement('span');
+                badge.className = "verified-badge";
+                badge.title = "صاحب موقع";
+                badge.textContent = "✓";
+                container.appendChild(badge);
+            }
+        }
+
+        function renderLeftList(videos) {
+            videoListLeft.innerHTML = "";
+
+            if (!videos.length) {
+                videoListLeft.innerHTML = `<div style="font-size:13px; color:#666;">لا توجد فيديوهات بعد.</div>`;
+                return;
+            }
+
             videos.forEach(v => {
-                const isLiked = likedIds.includes(v.id);
-                let box = document.getElementById(`box-${v.id}`);
+                const item = document.createElement('div');
+                item.className = `thumb-item ${v.id === selectedVideoId ? 'active' : ''}`;
+                item.onclick = () => window.selectVideo(v.id);
 
-                if (!box) {
-                    box = document.createElement('div');
-                    box.id = `box-${v.id}`;
-                    box.style.marginBottom = "25px";
-                    box.style.padding = "10px";
-                    box.style.border = "1px solid #444";
+                const preview = document.createElement('video');
+                preview.className = "thumb-preview";
+                preview.src = v.url;
+                preview.preload = "metadata";
+                preview.muted = true;
 
-                    const vid = document.createElement('video');
-                    vid.controls = true;
-                    vid.width = 500;
-                    vid.style.maxWidth = "100%";
-                    vid.style.display = "block";
-                    vid.src = v.url;
-                    vid.addEventListener('play', () => window.addView(v.id), { once: true });
+                const title = document.createElement('div');
+                title.className = "thumb-title";
+                title.innerText = v.title || "فيديو";
 
-                    const titleEl = document.createElement('div');
-                    titleEl.style.margin = "8px 0";
-                    titleEl.innerText = v.title || "فيديو";
+                const meta = document.createElement('div');
+                meta.className = "thumb-meta";
+                meta.innerText = `مشاهدات: 0 | إعجابات: ${v.likes || 0}`;
 
-                    const statsEl = document.createElement('div');
-                    statsEl.className = "stats";
-                    statsEl.innerHTML = `
-                        <span class="v-count">مشاهدات: ${v.views || 0}</span> |
-                        <button class="l-btn" onclick="toggleLike('${v.id}')">
-                            ${isLiked ? 'إلغاء الإعجاب' : 'أعجبني'} (<span class="l-count">${v.likes || 0}</span>)
-                        </button> |
-                        <a href="${v.url}" target="_blank" style="color:#4da6ff;">فتح الرابط مباشرة</a>
-                    `;
-
-                    box.appendChild(vid);
-                    box.appendChild(titleEl);
-                    box.appendChild(statsEl);
-                    videoFeed.prepend(box);
-                } else {
-                    const vCount = box.querySelector('.v-count');
-                    const lCount = box.querySelector('.l-count');
-                    const lBtn = box.querySelector('.l-btn');
-                    if (vCount) vCount.innerText = `مشاهدات: ${v.views || 0}`;
-                    if (lCount) lCount.innerText = v.likes || 0;
-                    if (lBtn) lBtn.innerHTML = `${isLiked ? 'إلغاء الإعجاب' : 'أعجبني'} (<span class="l-count">${v.likes || 0}</span>)`;
-                }
+                item.appendChild(preview);
+                item.appendChild(title);
+                item.appendChild(meta);
+                videoListLeft.appendChild(item);
             });
+        }
+
+        function renderStage(videos, forceReloadVideo = false) {
+            const activeVideo = videos.find(v => v.id === selectedVideoId);
+            if (!activeVideo) {
+                playerStage.innerHTML = `<div style="color:#666666; font-size:14px;">اختر فيديو من القائمة أو ارفع فيديو جديد لبدء المشاهدة.</div>`;
+                return;
+            }
+
+            let bigVid = playerStage.querySelector('.big-video');
+            const currentSrc = bigVid ? bigVid.getAttribute('data-vid-id') : null;
+
+            if (!bigVid || currentSrc !== activeVideo.id || forceReloadVideo) {
+                playerStage.innerHTML = `
+                    <video class="big-video" data-vid-id="${activeVideo.id}" controls src="${activeVideo.url}"></video>
+                    <div class="big-title"></div>
+                    <div class="big-author"></div>
+                    <div class="stats-bar"></div>
+                    <div class="comments-box"></div>
+                `;
+                bigVid = playerStage.querySelector('.big-video');
+            }
+
+            const titleEl = playerStage.querySelector('.big-title');
+            const authorEl = playerStage.querySelector('.big-author');
+            const statsEl = playerStage.querySelector('.stats-bar');
+            const commentsBox = playerStage.querySelector('.comments-box');
+
+            if (titleEl) titleEl.innerText = activeVideo.title || "فيديو";
+            if (authorEl) appendAuthorWithBadge(authorEl, activeVideo);
+
+            const isLiked = likedIds.includes(activeVideo.id);
+            const deleteHtml = isOwnerSession
+                ? `<button class="delete-btn" onclick="deleteVideo('${activeVideo.id}')">حذف الفيديو</button>`
+                : "";
+
+            if (statsEl) {
+                statsEl.innerHTML = `
+                    <span>مشاهدات: 0</span>
+                    <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${activeVideo.id}')">
+                        ${isLiked ? 'إلغاء الإعجاب' : 'أعجبني'} (${activeVideo.likes || 0})
+                    </button>
+                    <a href="${activeVideo.url}" target="_blank" style="color:#0044cc;">فتح الرابط مباشرة</a>
+                    ${deleteHtml}
+                `;
+            }
+
+            const comments = Array.isArray(activeVideo.comments) ? activeVideo.comments : [];
+            const count = comments.length;
+            const reachedLimit = count >= MAX_COMMENTS;
+
+            commentsBox.innerHTML = "";
+            const cHeader = document.createElement('div');
+            cHeader.style.fontWeight = "bold";
+            cHeader.style.fontSize = "14px";
+            cHeader.style.marginBottom = "6px";
+            cHeader.innerText = `التعليقات (${count}/${MAX_COMMENTS})`;
+            commentsBox.appendChild(cHeader);
+
+            comments.forEach((cText, idx) => {
+                const item = document.createElement('div');
+                item.className = "comment-item";
+                item.innerText = `${idx + 1}. ${cText}`;
+                commentsBox.appendChild(item);
+            });
+
+            if (reachedLimit) {
+                const note = document.createElement('div');
+                note.style.color = "#666666";
+                note.style.fontSize = "12px";
+                note.style.marginTop = "6px";
+                note.innerText = "تم الوصول للحد الأقصى (3 تعليقات).";
+                commentsBox.appendChild(note);
+            } else {
+                const formRow = document.createElement('div');
+                formRow.style.marginTop = "8px";
+
+                const input = document.createElement('input');
+                input.type = "text";
+                input.id = `comment-input-${activeVideo.id}`;
+                input.placeholder = "اكتب تعليقاً...";
+
+                const btn = document.createElement('button');
+                btn.type = "button";
+                btn.innerText = "إضافة تعليق";
+                btn.style.marginRight = "6px";
+                btn.onclick = () => window.addComment(activeVideo.id, count);
+
+                formRow.appendChild(input);
+                formRow.appendChild(btn);
+                commentsBox.appendChild(formRow);
+            }
         }
     </script>
 </body>
