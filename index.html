@@ -4,102 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:,">
-    <title>MiniTube - مشاركة حية</title>
-    <style>
-        * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-        body {
-            background-color: #0f0f0f;
-            color: #f1f1f1;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        header {
-            width: 100%;
-            max-width: 750px;
-            border-bottom: 1px solid #272727;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        h1 { margin: 0; font-size: 24px; color: #ff6b00; }
-        .upload-box {
-            background: #1a1a1a;
-            border: 2px dashed #333;
-            border-radius: 10px;
-            padding: 25px;
-            width: 100%;
-            max-width: 750px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        input[type="file"] { display: none; }
-        .btn {
-            background: #ff6b00;
-            color: #fff;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            display: inline-block;
-        }
-        .btn:hover { background: #e05e00; }
-        #status { margin-top: 15px; color: #aaa; font-size: 14px; font-weight: bold; }
-        .feed { width: 100%; max-width: 750px; display: flex; flex-direction: column; gap: 25px; }
-        .video-card {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #272727;
-        }
-        video { width: 100%; border-radius: 6px; background: #000; max-height: 450px; }
-        .video-title { font-size: 16px; font-weight: bold; margin: 12px 0 8px 0; }
-        .video-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #272727;
-            padding-top: 10px;
-            font-size: 14px;
-            color: #bbb;
-        }
-        .like-btn {
-            background: #272727;
-            color: #fff;
-            border: 1px solid #3f3f3f;
-            padding: 6px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .like-btn:hover { background: #383838; }
-        .like-btn.liked { background: #ff6b00; border-color: #ff6b00; color: #fff; }
-    </style>
+    <title>MiniTube</title>
 </head>
-<body>
+<body style="background:#111; color:#fff; font-family:sans-serif; padding:20px;">
 
-    <header>
-        <h1>▶ MiniTube</h1>
-        <span style="color:#888; font-size:13px;">الحد الأقصى للرفع: 50MB</span>
-    </header>
-
-    <div class="upload-box">
-        <p style="margin-top:0;">اختر مقطع فيديو صغير (أقل من 50 ميجابايت)</p>
-        <label for="videoInput" class="btn">اختر فيديو للرفع</label>
-        <input type="file" id="videoInput" accept="video/*">
-        <div id="status">جاهز...</div>
-    </div>
-
-    <div class="feed" id="videoFeed"></div>
+    <h2>MiniTube (أقل من 50MB)</h2>
+    <input type="file" id="videoInput" accept="video/*">
+    <div id="status" style="margin:10px 0; color:#ff6b00;">جاهز...</div>
+    <hr>
+    <div id="videoFeed"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
@@ -108,11 +21,9 @@
             query, orderBy, doc, updateDoc, increment
         } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // إعدادات Cloudinary
         const CLOUD_NAME = "t3niaerg";
         const UPLOAD_PRESET = "gnhe0akq";
 
-        // إعدادات Firebase الخاصة بمشروعك
         const firebaseConfig = {
             apiKey: "AIzaSyDoFI_AFh_xZpPIQCIp0mqfaJ_wZDJrUTQ",
             authDomain: "minitube-43b9c.firebaseapp.com",
@@ -127,24 +38,20 @@
         const db = getFirestore(app);
         const videosRef = collection(db, "videos");
 
-        const MAX_SIZE_MB = 50;
-        const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-
+        const MAX_SIZE_BYTES = 50 * 1024 * 1024;
         const videoInput = document.getElementById('videoInput');
         const statusDiv = document.getElementById('status');
         const videoFeed = document.getElementById('videoFeed');
 
-        // تتبع اللايكات الخاصة بالمتصفح الحالي فقط لتغيير شكل الزر
         let likedIds = JSON.parse(localStorage.getItem('minitube_liked_ids')) || [];
+        let renderedIds = new Set();
 
-        // الاستماع المباشر لأي فيديو جديد أو تحديث في المشاهدات واللايكات للجميع
         const q = query(videosRef, orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
             const videos = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             renderVideos(videos);
         }, (err) => {
-            statusDiv.innerText = "❌ خطأ في الاتصال بقاعدة البيانات: " + err.message;
-            statusDiv.style.color = "#f44336";
+            statusDiv.innerText = "خطأ Firestore: " + err.message;
         });
 
         videoInput.addEventListener('change', async (e) => {
@@ -152,121 +59,101 @@
             if (!file) return;
 
             if (file.size > MAX_SIZE_BYTES) {
-                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
-                statusDiv.innerText = `❌ مرفوض! حجم الفيديو (${fileSizeMB}MB) أكبر من 50MB.`;
-                statusDiv.style.color = "#f44336";
+                statusDiv.innerText = "مرفوض! أكبر من 50MB.";
                 videoInput.value = "";
                 return;
             }
 
-            statusDiv.innerText = `⏳ جاري رفع "${file.name}"...`;
-            statusDiv.style.color = "#ff6b00";
-
+            statusDiv.innerText = "جاري الرفع...";
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', UPLOAD_PRESET);
 
             try {
-                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`, {
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`, {
                     method: 'POST',
                     body: formData
                 });
+                const data = await res.json();
+                if (!data.secure_url) throw new Error(data.error?.message || "فشل الرفع");
 
-                const data = await response.json();
+                await addDoc(videosRef, {
+                    title: file.name,
+                    url: data.secure_url,
+                    views: 0,
+                    likes: 0,
+                    createdAt: Date.now()
+                });
 
-                if (data.secure_url) {
-                    await addDoc(videosRef, {
-                        title: file.name,
-                        url: data.secure_url,
-                        views: 0,
-                        likes: 0,
-                        createdAt: Date.now()
-                    });
-
-                    statusDiv.innerText = "✅ تم الرفع ونشره للجميع بنجاح!";
-                    statusDiv.style.color = "#4caf50";
-                } else {
-                    throw new Error(data.error?.message || "فشل الرفع");
-                }
+                statusDiv.innerText = "تم الرفع بنجاح!";
             } catch (err) {
-                statusDiv.innerText = "❌ خطأ: " + err.message;
-                statusDiv.style.color = "#f44336";
+                statusDiv.innerText = "خطأ: " + err.message;
             }
             videoInput.value = "";
         });
 
         window.addView = async function(id) {
-            const docRef = doc(db, "videos", id);
-            await updateDoc(docRef, {
-                views: increment(1)
-            });
+            await updateDoc(doc(db, "videos", id), { views: increment(1) });
         };
 
         window.toggleLike = async function(id) {
-            const docRef = doc(db, "videos", id);
             const alreadyLiked = likedIds.includes(id);
-
             if (alreadyLiked) {
-                likedIds = likedIds.filter(item => item !== id);
-                await updateDoc(docRef, {
-                    likes: increment(-1)
-                });
+                likedIds = likedIds.filter(x => x !== id);
+                await updateDoc(doc(db, "videos", id), { likes: increment(-1) });
             } else {
                 likedIds.push(id);
-                await updateDoc(docRef, {
-                    likes: increment(1)
-                });
+                await updateDoc(doc(db, "videos", id), { likes: increment(1) });
             }
             localStorage.setItem('minitube_liked_ids', JSON.stringify(likedIds));
         };
 
-        function escapeHtml(text = "") {
-            return String(text)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;");
-        }
-
         function renderVideos(videos) {
-            const activeIds = new Set(videos.map(v => v.id));
-
-            Array.from(videoFeed.children).forEach(child => {
-                const childId = child.id.replace("card-", "");
-                if (!activeIds.has(childId)) {
-                    child.remove();
-                }
-            });
-
             videos.forEach(v => {
                 const isLiked = likedIds.includes(v.id);
-                let card = document.getElementById(`card-${v.id}`);
+                let box = document.getElementById(`box-${v.id}`);
 
-                if (!card) {
-                    card = document.createElement('div');
-                    card.className = 'video-card';
-                    card.id = `card-${v.id}`;
-                    card.innerHTML = `
-                        <video controls playsinline preload="metadata" src="${escapeHtml(v.url)}" onplay="addView('${v.id}')"></video>
-                        <div class="video-title">${escapeHtml(v.title)}</div>
-                        <div class="video-stats">
-                            <span class="views-count">👁️ ${v.views || 0} مشاهدة</span>
-                            <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${v.id}')">
-                                👍 <span class="likes-count">${v.likes || 0}</span> أعجبني
-                            </button>
-                        </div>
+                if (!box) {
+                    box = document.createElement('div');
+                    box.id = `box-${v.id}`;
+                    box.style.marginBottom = "25px";
+                    box.style.padding = "10px";
+                    box.style.border = "1px solid #444";
+
+                    const vid = document.createElement('video');
+                    vid.controls = true;
+                    vid.width = 500;
+                    vid.style.maxWidth = "100%";
+                    vid.style.display = "block";
+                    vid.src = v.url;
+                    vid.addEventListener('play', () => window.addView(v.id), { once: true });
+
+                    const titleEl = document.createElement('div');
+                    titleEl.style.margin = "8px 0";
+                    titleEl.innerText = v.title || "فيديو";
+
+                    const statsEl = document.createElement('div');
+                    statsEl.className = "stats";
+                    statsEl.innerHTML = `
+                        <span class="v-count">مشاهدات: ${v.views || 0}</span> |
+                        <button class="l-btn" onclick="toggleLike('${v.id}')">
+                            ${isLiked ? 'إلغاء الإعجاب' : 'أعجبني'} (<span class="l-count">${v.likes || 0}</span>)
+                        </button> |
+                        <a href="${v.url}" target="_blank" style="color:#4da6ff;">فتح الرابط مباشرة</a>
                     `;
+
+                    box.appendChild(vid);
+                    box.appendChild(titleEl);
+                    box.appendChild(statsEl);
+                    videoFeed.prepend(box);
                 } else {
-                    const viewsEl = card.querySelector('.views-count');
-                    const likesCountEl = card.querySelector('.likes-count');
-                    const likeBtnEl = card.querySelector('.like-btn');
-
-                    if (viewsEl) viewsEl.innerText = `👁️ ${v.views || 0} مشاهدة`;
-                    if (likesCountEl) likesCountEl.innerText = v.likes || 0;
-                    if (likeBtnEl) likeBtnEl.classList.toggle('liked', isLiked);
+                    const vCount = box.querySelector('.v-count');
+                    const lCount = box.querySelector('.l-count');
+                    const lBtn = box.querySelector('.l-btn');
+                    if (vCount) vCount.innerText = `مشاهدات: ${v.views || 0}`;
+                    if (lCount) lCount.innerText = v.likes || 0;
+                    if (lBtn) lBtn.innerHTML = `${isLiked ? 'إلغاء الإعجاب' : 'أعجبني'} (<span class="l-count">${v.likes || 0}</span>)`;
                 }
-
-                videoFeed.appendChild(card);
             });
         }
     </script>
