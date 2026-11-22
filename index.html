@@ -6,341 +6,730 @@
     <link rel="icon" href="data:,">
     <title>MiniTube</title>
     <style>
-        * { box-sizing: border-box; font-family: Arial, Tahoma, sans-serif; }
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+        }
+
+        :root {
+            --bg-page: #eaedf2;
+            --bg-surface: #ffffff;
+            --bg-soft: #f6f8fb;
+            --bg-elevated: #eef2f6;
+            --border-light: #dfe5ee;
+            --border-med: #c2ccd9;
+            --text-main: #0f172a;
+            --text-muted: #556275;
+            --accent: #cc0000;
+            --accent-deep: #990000;
+            --accent-glow: rgba(204, 0, 0, 0.16);
+            --accent-soft: #fff2f2;
+            --verified: #1d9bf0;
+            --shadow-xs: 0 1px 3px rgba(15, 23, 42, 0.05);
+            --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 12px 28px rgba(15, 23, 42, 0.14);
+            --radius-sm: 7px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
         body {
-            background: #ffffff;
-            color: #111111;
+            background:
+                radial-gradient(circle at 12% 0%, rgba(204, 0, 0, 0.06), transparent 42%),
+                radial-gradient(circle at 90% 10%, rgba(29, 155, 240, 0.06), transparent 40%),
+                var(--bg-page);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
+            min-height: 100vh;
+            line-height: 1.55;
         }
+
         .topbar {
-            background: #f4f4f4;
-            border-bottom: 1px solid #cccccc;
-            padding: 10px 18px;
+            position: sticky;
+            top: 0;
+            z-index: 400;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-med);
+            padding: 11px 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             flex-wrap: wrap;
+            box-shadow: var(--shadow-xs);
         }
+
         .brand-area {
             display: flex;
             align-items: center;
             gap: 10px;
             flex-wrap: wrap;
         }
+
         .logo {
-            font-size: 22px;
-            font-weight: bold;
-            color: #cc0000;
-            border: 2px solid #cc0000;
-            background: #ffffff;
-            padding: 2px 8px;
-            border-radius: 4px;
+            position: relative;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            color: #ffffff;
+            background: linear-gradient(145deg, #e52424 0%, #c00000 55%, #980000 100%);
+            border: 1px solid #860000;
+            padding: 3px 12px;
+            border-radius: var(--radius-sm);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 10px rgba(204, 0, 0, 0.28);
+            user-select: none;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
         }
+
+        .logo:hover {
+            transform: translateY(-1px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 6px 14px rgba(204, 0, 0, 0.34);
+        }
+
         .limit-note {
             font-size: 12px;
-            color: #555555;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-light);
+            padding: 4px 10px;
+            border-radius: 999px;
         }
+
         .search-wrap {
             position: relative;
             display: flex;
             align-items: center;
-            gap: 4px;
             flex: 1;
-            min-width: 220px;
-            max-width: 380px;
+            min-width: 235px;
+            max-width: 430px;
+            background: var(--bg-soft);
+            border: 1px solid var(--border-med);
+            border-radius: 999px;
+            padding-right: 4px;
+            overflow: visible;
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+            transition: all 0.18s ease;
         }
+
+        .search-wrap:focus-within {
+            background: var(--bg-surface);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-glow), var(--shadow-xs);
+        }
+
         .search-wrap input[type="text"] {
             width: 100%;
-            padding: 5px 8px;
-            border: 1px solid #888888;
-            background: #ffffff;
-            color: #111111;
+            padding: 7px 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
         }
+
+        #clearSearchBtn {
+            border: none;
+            border-right: 1px solid var(--border-light);
+            background: transparent;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 999px 0 0 999px;
+            box-shadow: none;
+        }
+
+        #clearSearchBtn:hover {
+            background: var(--accent-soft);
+            color: var(--accent);
+            transform: none;
+        }
+
         .keywords-dropdown {
             display: none;
             position: absolute;
-            top: 100%;
+            top: calc(100% + 8px);
             right: 0;
             left: 0;
-            background: #ffffff;
-            border: 1px solid #888888;
-            border-top: none;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-med);
+            border-radius: var(--radius-md);
             z-index: 500;
-            padding: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            padding: 12px 14px;
+            box-shadow: var(--shadow-md);
+            animation: popIn 0.14s ease-out;
         }
+
         .keywords-dropdown.open {
             display: block;
         }
-        .keywords-title {
-            font-size: 11px;
-            color: #555555;
-            margin-bottom: 6px;
-            font-weight: bold;
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
+        .keywords-title {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
         .keyword-chips {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
+            gap: 6px;
         }
+
         .keyword-chip {
             font-size: 12px;
-            padding: 3px 8px;
-            border: 1px solid #bbbbbb;
-            background: #f4f4f4;
-            color: #111111;
+            padding: 4px 11px;
+            border: 1px solid var(--border-med);
+            border-radius: 999px;
+            background: var(--bg-soft);
+            color: var(--text-main);
             cursor: pointer;
+            transition: all 0.14s ease;
         }
+
         .keyword-chip:hover {
-            background: #ffeaea;
-            border-color: #cc0000;
-            color: #cc0000;
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
         }
+
         .upload-area {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
         }
-        #status {
-            font-size: 13px;
-            color: #b45309;
-            font-weight: bold;
+
+        input[type="file"] {
+            font-size: 12px;
+            color: var(--text-muted);
+            max-width: 225px;
         }
+
+        input[type="file"]::file-selector-button {
+            padding: 6px 12px;
+            margin-left: 8px;
+            border: 1px solid var(--border-med);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(180deg, #ffffff 0%, #f3f5f8 100%);
+            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: var(--shadow-xs);
+            transition: all 0.15s ease;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        #status {
+            font-size: 12.5px;
+            color: #92400e;
+            background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1px solid #f59e0b;
+            padding: 4px 11px;
+            border-radius: 999px;
+            font-weight: 700;
+            box-shadow: var(--shadow-xs);
+        }
+
         #uploadDetails {
             display: none;
-            background: #fafafa;
-            border-bottom: 1px solid #cccccc;
-            padding: 14px 18px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-med);
+            padding: 20px 24px;
+            box-shadow: var(--shadow-sm);
+            animation: popIn 0.16s ease-out;
         }
+
         #uploadDetails .row {
-            margin-bottom: 10px;
+            margin-bottom: 13px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
         }
-        input[type="text"], textarea {
-            padding: 6px 8px;
-            border: 1px solid #999999;
-            background: #ffffff;
-            color: #111111;
+
+        #uploadDetails label {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-main);
         }
+
+        input[type="text"], textarea, select {
+            padding: 8px 11px;
+            border: 1px solid var(--border-med);
+            border-radius: var(--radius-sm);
+            background: var(--bg-soft);
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: all 0.15s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            background: var(--bg-surface);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
         textarea {
             width: 100%;
-            max-width: 520px;
-            min-height: 85px;
+            max-width: 560px;
+            min-height: 92px;
             resize: vertical;
         }
+
         .rules-box {
-            background: #fff8f8;
-            border: 1px solid #cc0000;
-            padding: 10px 12px;
-            max-width: 520px;
-            margin: 10px 0;
+            background: linear-gradient(180deg, #fff6f6 0%, #ffecec 100%);
+            border: 1px solid #f3c2c2;
+            border-right: 4px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 12px 15px;
+            max-width: 560px;
+            margin: 14px 0;
             font-size: 13px;
-            line-height: 1.6;
+            line-height: 1.7;
         }
+
         .rules-title {
-            font-weight: bold;
-            color: #b91c1c;
+            font-weight: 800;
+            color: var(--accent);
             margin-bottom: 4px;
         }
+
         .agree-row {
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 14px;
             font-size: 13px;
-            font-weight: bold;
+            font-weight: 700;
         }
+
+        .agree-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
         button {
-            padding: 5px 10px;
-            border: 1px solid #888888;
-            background: #eeeeee;
-            color: #111111;
+            padding: 6px 13px;
+            border: 1px solid var(--border-med);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(180deg, #ffffff 0%, #eef2f6 100%);
+            color: var(--text-main);
             cursor: pointer;
             font-size: 13px;
+            font-weight: 700;
+            box-shadow: var(--shadow-xs);
+            transition: all 0.15s ease;
         }
-        button:hover {
-            background: #e0e0e0;
+
+        button:hover:not(:disabled) {
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+            border-color: #94a3b8;
+            transform: translateY(-1px);
         }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        #publishBtn {
+            background: linear-gradient(180deg, #e52424 0%, #b80000 100%);
+            color: #ffffff;
+            border-color: #8f0000;
+            padding: 7px 18px;
+            box-shadow: 0 3px 8px rgba(204, 0, 0, 0.25);
+        }
+
+        #publishBtn:hover:not(:disabled) {
+            background: linear-gradient(180deg, #d31515 0%, #9c0000 100%);
+        }
+
         .info-backdrop {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.45);
+            background: rgba(15, 23, 42, 0.58);
+            backdrop-filter: blur(4px);
             z-index: 999;
             align-items: center;
             justify-content: center;
             padding: 16px;
         }
+
         .info-backdrop.open {
             display: flex;
         }
+
         .info-box {
-            background: #ffffff;
-            color: #111111;
-            border: 2px solid #888888;
-            max-width: 440px;
+            background: var(--bg-surface);
+            color: var(--text-main);
+            border: 1px solid var(--border-med);
+            border-radius: var(--radius-lg);
+            max-width: 460px;
             width: 100%;
-            padding: 16px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            padding: 20px 22px;
+            box-shadow: var(--shadow-md);
+            animation: popIn 0.16s ease-out;
         }
+
         .info-box-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #dddddd;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-            font-weight: bold;
-            font-size: 15px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 11px;
+            margin-bottom: 14px;
+            font-weight: 800;
+            font-size: 16px;
         }
+
         .info-lines {
             font-size: 14px;
-            line-height: 1.7;
+            line-height: 1.8;
             white-space: pre-line;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
+            background: var(--bg-soft);
+            padding: 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+            border-right: 3px solid var(--accent);
         }
+
         .main-layout {
             display: flex;
             flex-direction: row-reverse;
             align-items: flex-start;
-            gap: 18px;
-            padding: 16px 18px;
-            max-width: 1200px;
+            gap: 22px;
+            padding: 20px 22px;
+            max-width: 1280px;
             margin: 0 auto;
         }
+
         .sidebar-left {
-            width: 330px;
-            min-width: 270px;
-            background: #fafafa;
-            border: 1px solid #cccccc;
-            padding: 10px;
+            width: 345px;
+            min-width: 285px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
         }
+
+        .sidebar-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+            border-bottom: 2px solid var(--border-light);
+        }
+
         .sidebar-title {
-            font-size: 14px;
-            font-weight: bold;
-            margin: 0 0 10px 0;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #dddddd;
+            font-size: 15px;
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
+        .sidebar-title::before {
+            content: "";
+            width: 5px;
+            height: 16px;
+            border-radius: 999px;
+            background: var(--accent);
+            display: inline-block;
+        }
+
+        .sort-select {
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+        }
+
         .thumb-item {
-            border: 1px solid #dddddd;
-            background: #ffffff;
-            padding: 8px;
-            margin-bottom: 10px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: var(--bg-soft);
+            padding: 10px;
+            margin-bottom: 12px;
             cursor: pointer;
+            transition: all 0.16s ease;
         }
+
+        .thumb-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .thumb-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-med);
+            background: var(--bg-surface);
+            box-shadow: var(--shadow-sm);
+        }
+
         .thumb-item.active {
-            border-color: #cc0000;
-            background: #fff7f7;
+            border-color: var(--accent);
+            background: linear-gradient(180deg, #fffafa 0%, #fff1f1 100%);
+            box-shadow: 0 0 0 3px var(--accent-glow), var(--shadow-xs);
         }
+
         .thumb-preview {
             width: 100%;
-            height: 130px;
+            height: 150px;
             object-fit: cover;
-            background: #000000;
+            background: #090c10;
+            border-radius: var(--radius-sm);
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 9px;
             pointer-events: none;
+            border: 1px solid rgba(15, 23, 42, 0.08);
         }
+
         .thumb-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: #111111;
-            margin-bottom: 3px;
+            font-size: 13.5px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 4px;
             word-break: break-word;
         }
+
         .thumb-meta {
             font-size: 12px;
-            color: #666666;
+            color: var(--text-muted);
         }
+
         .stage-area {
             flex: 1;
             min-width: 0;
-            background: #ffffff;
-            border: 1px solid #cccccc;
-            padding: 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
         }
+
         .big-video {
             width: 100%;
-            max-height: 460px;
-            background: #000000;
+            max-height: 490px;
+            background: #090c10;
+            border-radius: var(--radius-md);
             display: block;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
         }
+
+        .watch-progress-wrap {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .watch-progress-track {
+            flex: 1;
+            height: 5px;
+            background: var(--bg-elevated);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .watch-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #e52424 0%, #1d9bf0 100%);
+            transition: width 0.25s ease;
+        }
+
         .big-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 12px 0 6px 0;
-            color: #111111;
+            font-size: 20px;
+            font-weight: 800;
+            margin: 14px 0 6px 0;
+            color: var(--text-main);
         }
+
         .big-author {
             font-size: 14px;
-            color: #444444;
+            font-weight: 700;
+            color: #334155;
             margin-bottom: 4px;
         }
+
         .publish-date-line {
             font-size: 12px;
-            color: #666666;
-            margin-bottom: 10px;
+            color: var(--text-muted);
+            margin-bottom: 13px;
         }
+
         .video-bio-box {
-            background: #fafafa;
-            border: 1px solid #e2e2e2;
-            padding: 10px;
-            margin-bottom: 10px;
-            font-size: 13px;
-            line-height: 1.6;
+            background: var(--bg-soft);
+            border: 1px solid var(--border-light);
+            border-right: 3px solid var(--border-med);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            margin-bottom: 14px;
+            font-size: 13.5px;
+            line-height: 1.7;
             white-space: pre-wrap;
             word-break: break-word;
         }
+
         .verified-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 16px;
-            height: 16px;
+            width: 17px;
+            height: 17px;
             border-radius: 50%;
-            background: #1d9bf0;
+            background: linear-gradient(180deg, #29a5f6 0%, #1684d4 100%);
             color: #ffffff;
             font-size: 11px;
             font-weight: bold;
-            margin-right: 4px;
+            margin-right: 5px;
             cursor: help;
             vertical-align: middle;
+            box-shadow: 0 1px 3px rgba(29, 155, 240, 0.35);
         }
+
         .stats-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px 6px;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .stats-group {
             display: flex;
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
-            padding: 8px 0;
-            border-top: 1px solid #e5e5e5;
-            border-bottom: 1px solid #e5e5e5;
-            font-size: 13px;
-            color: #333333;
         }
+
+        .stat-pill {
+            background: var(--bg-soft);
+            border: 1px solid var(--border-light);
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .auto-next-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--bg-soft);
+            border: 1px solid var(--border-light);
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        .auto-next-label input {
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
         .like-btn.liked {
-            background: #cc0000;
+            background: linear-gradient(180deg, #e52424 0%, #b80000 100%);
             color: #ffffff;
-            border-color: #990000;
+            border-color: #8f0000;
+            box-shadow: 0 3px 8px rgba(204, 0, 0, 0.25);
         }
+
         .delete-btn {
-            background: #b91c1c;
+            background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
             color: #ffffff;
             border-color: #7f1d1d;
         }
+
+        .delete-btn:hover:not(:disabled) {
+            background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+        }
+
         .comments-box {
-            margin-top: 12px;
+            margin-top: 18px;
         }
+
+        .comments-box h4 {
+            margin: 0 0 12px 0;
+            font-size: 15.5px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comments-box h4::before {
+            content: "";
+            width: 4px;
+            height: 15px;
+            border-radius: 999px;
+            background: var(--accent);
+            display: inline-block;
+        }
+
         .comment-item {
-            background: #f9f9f9;
-            border: 1px solid #e5e5e5;
-            padding: 8px;
-            margin: 6px 0;
+            background: var(--bg-soft);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 11px 14px;
+            margin: 9px 0;
             font-size: 13px;
-            color: #222222;
+            color: var(--text-main);
+            box-shadow: var(--shadow-xs);
+            transition: border-color 0.14s ease, background 0.14s ease;
         }
+
+        .comment-item:hover {
+            background: var(--bg-surface);
+            border-color: var(--border-med);
+        }
+
         .comment-meta-line {
             display: flex;
             justify-content: space-between;
@@ -348,30 +737,50 @@
             gap: 8px;
             flex-wrap: wrap;
         }
+
+        .comment-text {
+            margin-top: 6px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #1e293b;
+        }
+
         .comment-actions {
             display: flex;
             gap: 6px;
             align-items: center;
         }
+
         .comment-form-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 8px;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-soft);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
             align-items: center;
         }
+
         .comment-cooldown-note {
             font-size: 12px;
-            color: #666666;
-            margin-top: 6px;
+            color: var(--text-muted);
+            margin-top: 8px;
         }
+
         @media (max-width: 820px) {
             .main-layout {
                 flex-direction: column;
+                padding: 12px;
+                gap: 14px;
             }
             .sidebar-left {
                 width: 100%;
                 min-width: 0;
+            }
+            .stage-area {
+                padding: 14px;
             }
         }
     </style>
@@ -410,7 +819,7 @@
 انا انس رائد
 مشروع الفا تجريبي يحاول محاكاه كيف تم صناعه يويتوب
 شكرا لي جميع
-جميع حقوق و الوثائق منسوبه لي أنس رائد</div>
+جميع حقوق و الوثائق محفوظه لدا أنس رائد</div>
             <button id="closeInfoBtn" type="button">إغلاق</button>
         </div>
     </div>
@@ -427,7 +836,7 @@
         <div class="row">
             <label for="videoBio">بايو المقطع (حد أقصى 500 حرف): </label>
             <span id="bioCounter" style="font-size:12px; color:#555;">0 / 500</span>
-            <div style="margin-top:6px;">
+            <div style="width:100%; margin-top:4px;">
                 <textarea id="videoBio" maxlength="500" placeholder="اكتب وصفاً أو بايو للفيديو (حتى 500 حرف)..."></textarea>
             </div>
         </div>
@@ -449,7 +858,14 @@
 
     <div class="main-layout">
         <aside class="sidebar-left">
-            <h3 class="sidebar-title" id="sidebarHeading">الفيديوهات</h3>
+            <div class="sidebar-header-row">
+                <h3 class="sidebar-title" id="sidebarHeading">الفيديوهات</h3>
+                <select id="sortSelect" class="sort-select" title="ترتيب الفيديوهات">
+                    <option value="newest">الأحدث</option>
+                    <option value="views">الأكثر مشاهدة</option>
+                    <option value="likes">الأكثر إعجاباً</option>
+                </select>
+            </div>
             <div id="videoListLeft"></div>
         </aside>
 
@@ -473,7 +889,6 @@
         const REQUIRED_WATCH_SECONDS = 20;
         const MAX_BIO_LENGTH = 500;
 
-        // كلمات متقاربة ومرادفات شائعة لتوسيع البحث بالكلمات المفتاحية
         const RELATED_KEYWORDS_MAP = {
             cs: ["counter-strike", "cs2", "cs1.6", "csgo", "computer science", "c++", "coding", "برمجة", "علوم حاسوب"],
             "counter-strike": ["cs", "cs2", "cs1.6", "csgo", "valve", "fps"],
@@ -507,6 +922,7 @@
         const keywordsDropdown = document.getElementById('keywordsDropdown');
         const keywordChips = document.getElementById('keywordChips');
         const sidebarHeading = document.getElementById('sidebarHeading');
+        const sortSelect = document.getElementById('sortSelect');
         const videoInput = document.getElementById('videoInput');
         const uploadDetails = document.getElementById('uploadDetails');
         const uploaderNameInput = document.getElementById('uploaderName');
@@ -526,6 +942,8 @@
         let ownedVideoIds = JSON.parse(localStorage.getItem('minitube_owned_videos')) || [];
         let savedCommentUser = localStorage.getItem('minitube_comment_user') || '';
         let lastCommentAt = Number(localStorage.getItem('minitube_last_comment_at')) || 0;
+        let autoNextEnabled = localStorage.getItem('minitube_auto_next') === 'true';
+        let currentSortMode = localStorage.getItem('minitube_sort_mode') || 'newest';
         let latestVideos = [];
         let selectedVideoId = null;
         let editingCommentKey = null;
@@ -533,6 +951,17 @@
 
         const watchAccumulator = new Map();
         const countedViewSessionIds = new Set();
+
+        sortSelect.value = currentSortMode;
+
+        function escapeHtml(str = "") {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
 
         aboutBtn.addEventListener('click', () => {
             infoModal.classList.add('open');
@@ -551,6 +980,12 @@
             if (e.key === 'Escape' && infoModal.classList.contains('open')) {
                 closeInfoModal();
             }
+        });
+
+        sortSelect.addEventListener('change', () => {
+            currentSortMode = sortSelect.value;
+            localStorage.setItem('minitube_sort_mode', currentSortMode);
+            refreshViews();
         });
 
         function extractTokens(text = "") {
@@ -583,19 +1018,32 @@
             return Array.from(terms);
         }
 
+        function sortVideosList(videos) {
+            const copy = [...videos];
+            if (currentSortMode === 'views') {
+                return copy.sort((a, b) => (b.views || 0) - (a.views || 0));
+            }
+            if (currentSortMode === 'likes') {
+                return copy.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+            }
+            return copy.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        }
+
         function getFilteredVideos(videos, rawQuery) {
             const terms = buildExpandedSearchTerms(rawQuery);
-            if (!terms.length) return videos;
+            const base = !terms.length
+                ? videos
+                : videos.filter(v => {
+                    const haystack = [
+                        v.title || "",
+                        v.bio || "",
+                        v.uploader || ""
+                    ].join(" ").toLowerCase();
 
-            return videos.filter(v => {
-                const haystack = [
-                    v.title || "",
-                    v.bio || "",
-                    v.uploader || ""
-                ].join(" ").toLowerCase();
+                    return terms.some(term => haystack.includes(term));
+                });
 
-                return terms.some(term => haystack.includes(term));
-            });
+            return sortVideosList(base);
         }
 
         function renderKeywordSuggestions(rawQuery) {
@@ -848,6 +1296,21 @@
             renderStage(filtered, true);
         };
 
+        window.copyVideoUrl = async function(url) {
+            if (!url) return;
+            try {
+                await navigator.clipboard.writeText(url);
+                statusDiv.innerText = "تم نسخ رابط الفيديو!";
+            } catch {
+                statusDiv.innerText = "تعذر نسخ الرابط تلقائياً.";
+            }
+        };
+
+        window.toggleAutoNext = function(checked) {
+            autoNextEnabled = Boolean(checked);
+            localStorage.setItem('minitube_auto_next', String(autoNextEnabled));
+        };
+
         window.deleteVideo = async function(id) {
             if (!isOwnerSession) return;
             try {
@@ -926,57 +1389,51 @@
                 await updateDoc(doc(db, "videos", videoId), {
                     comments: [...currentComments, newComment]
                 });
-                lastCommentAt = now;
-                localStorage.setItem('minitube_last_comment_at', String(lastCommentAt));
                 savedCommentUser = authorName;
                 localStorage.setItem('minitube_comment_user', savedCommentUser);
+                lastCommentAt = now;
+                localStorage.setItem('minitube_last_comment_at', String(lastCommentAt));
+                if (isOwner) {
+                    isOwnerSession = true;
+                    localStorage.setItem('minitube_is_owner', 'true');
+                }
                 textInputEl.value = "";
-                statusDiv.innerText = "تم إضافة التعليق.";
+                statusDiv.innerText = "تم نشر التعليق بنجاح.";
             } catch (err) {
                 statusDiv.innerText = "خطأ في إضافة التعليق: " + err.message;
             }
         };
 
         window.startEditComment = function(videoId, commentId) {
-            const targetVideo = latestVideos.find(v => v.id === videoId);
-            if (!canEditVideoComments(targetVideo)) {
-                statusDiv.innerText = "غير مسموح! فقط صاحب الفيديو يمكنه تعديل التعليقات.";
-                return;
-            }
             editingCommentKey = `${videoId}::${commentId}`;
-            refreshViews();
+            const filtered = getFilteredVideos(latestVideos, currentSearchQuery);
+            renderStage(filtered, false);
         };
 
         window.cancelEditComment = function() {
             editingCommentKey = null;
-            refreshViews();
+            const filtered = getFilteredVideos(latestVideos, currentSearchQuery);
+            renderStage(filtered, false);
         };
 
         window.saveEditComment = async function(videoId, commentId) {
-            const targetVideo = latestVideos.find(v => v.id === videoId);
-            if (!canEditVideoComments(targetVideo)) {
-                statusDiv.innerText = "غير مسموح! فقط صاحب الفيديو أو صاحب الكود  يمكنه تعديل التعليقات.";
-                return;
-            }
-
-            const editInputEl = document.getElementById(`edit-comment-input-${videoId}-${commentId}`);
-            if (!editInputEl) return;
-
-            const updatedText = editInputEl.value.trim();
+            const editInput = document.getElementById(`edit-comment-input-${videoId}-${commentId}`);
+            if (!editInput) return;
+            const updatedText = editInput.value.trim();
             if (!updatedText) {
-                statusDiv.innerText = "لا يمكن أن يكون التعليق فارغاً.";
+                statusDiv.innerText = "لا يمكن ترك التعليق فارغاً.";
                 return;
             }
 
-            const currentComments = normalizeComments(targetVideo ? targetVideo.comments : []);
-            const nextComments = currentComments.map(c =>
+            const targetVideo = latestVideos.find(v => v.id === videoId);
+            if (!targetVideo || !canEditVideoComments(targetVideo)) return;
+
+            const updatedComments = normalizeComments(targetVideo.comments).map(c =>
                 c.id === commentId ? { ...c, text: updatedText } : c
             );
 
             try {
-                await updateDoc(doc(db, "videos", videoId), {
-                    comments: nextComments
-                });
+                await updateDoc(doc(db, "videos", videoId), { comments: updatedComments });
                 editingCommentKey = null;
                 statusDiv.innerText = "تم تعديل التعليق.";
             } catch (err) {
@@ -986,106 +1443,97 @@
 
         window.deleteComment = async function(videoId, commentId) {
             const targetVideo = latestVideos.find(v => v.id === videoId);
-            const currentComments = normalizeComments(targetVideo ? targetVideo.comments : []);
+            if (!targetVideo) return;
+
+            const currentComments = normalizeComments(targetVideo.comments);
             const targetComment = currentComments.find(c => c.id === commentId);
+            if (!targetComment || !canDeleteComment(targetComment, targetVideo)) return;
 
-            if (!canDeleteComment(targetComment, targetVideo)) {
-                statusDiv.innerText = "تقدر تمسح تعليقك فقط.";
-                return;
-            }
-
-            const nextComments = currentComments.filter(c => c.id !== commentId);
-
+            const filteredComments = currentComments.filter(c => c.id !== commentId);
             try {
-                await updateDoc(doc(db, "videos", videoId), {
-                    comments: nextComments
-                });
+                await updateDoc(doc(db, "videos", videoId), { comments: filteredComments });
                 if (editingCommentKey === `${videoId}::${commentId}`) {
                     editingCommentKey = null;
                 }
-                statusDiv.innerText = "تم مسح التعليق.";
+                statusDiv.innerText = "تم حذف التعليق.";
             } catch (err) {
-                statusDiv.innerText = "خطأ في مسح التعليق: " + err.message;
+                statusDiv.innerText = "خطأ في حذف التعليق: " + err.message;
             }
         };
 
+        function updateWatchIndicator(videoId) {
+            const fillEl = document.getElementById(`watch-fill-${videoId}`);
+            const textEl = document.getElementById(`watch-label-${videoId}`);
+            if (!fillEl || !textEl) return;
+
+            if (countedViewSessionIds.has(videoId)) {
+                fillEl.style.width = "100%";
+                textEl.innerText = "تم احتساب المشاهدة";
+                return;
+            }
+
+            const acc = Math.min(watchAccumulator.get(videoId) || 0, REQUIRED_WATCH_SECONDS);
+            const pct = Math.round((acc / REQUIRED_WATCH_SECONDS) * 100);
+            fillEl.style.width = `${pct}%`;
+            textEl.innerText = `احتساب المشاهدة: ${Math.floor(acc)} / ${REQUIRED_WATCH_SECONDS} ث`;
+        }
+
         function attachWatchTracker(videoEl, videoId) {
-            let lastTime = null;
+            if (!videoEl) return;
+            let lastTime = videoEl.currentTime || 0;
+            updateWatchIndicator(videoId);
 
             videoEl.addEventListener('play', () => {
-                lastTime = videoEl.currentTime;
+                lastTime = videoEl.currentTime || 0;
             });
 
             videoEl.addEventListener('seeking', () => {
-                lastTime = videoEl.currentTime;
+                lastTime = videoEl.currentTime || 0;
             });
 
             videoEl.addEventListener('timeupdate', async () => {
-                if (videoEl.paused || videoEl.ended) {
-                    lastTime = videoEl.currentTime;
-                    return;
-                }
+                if (videoEl.paused || videoEl.seeking) return;
+                const nowTime = videoEl.currentTime || 0;
+                const delta = nowTime - lastTime;
+                lastTime = nowTime;
 
-                const currentTime = videoEl.currentTime;
-                if (lastTime !== null && currentTime > lastTime) {
-                    const delta = currentTime - lastTime;
-                    if (delta > 0 && delta <= 3 && !countedViewSessionIds.has(videoId)) {
-                        const prevWatched = watchAccumulator.get(videoId) || 0;
-                        const nextWatched = prevWatched + delta;
-                        watchAccumulator.set(videoId, nextWatched);
+                if (delta > 0 && delta < 3) {
+                    const prevAcc = watchAccumulator.get(videoId) || 0;
+                    const nextAcc = prevAcc + delta;
+                    watchAccumulator.set(videoId, nextAcc);
+                    updateWatchIndicator(videoId);
 
-                        if (nextWatched >= REQUIRED_WATCH_SECONDS) {
-                            countedViewSessionIds.add(videoId);
-                            try {
-                                await updateDoc(doc(db, "videos", videoId), {
-                                    views: increment(1)
-                                });
-                            } catch (err) {
-                                countedViewSessionIds.delete(videoId);
-                            }
+                    if (nextAcc >= REQUIRED_WATCH_SECONDS && !countedViewSessionIds.has(videoId)) {
+                        countedViewSessionIds.add(videoId);
+                        updateWatchIndicator(videoId);
+                        try {
+                            await updateDoc(doc(db, "videos", videoId), { views: increment(1) });
+                        } catch {
+                            countedViewSessionIds.delete(videoId);
                         }
                     }
                 }
-                lastTime = currentTime;
+            });
+
+            videoEl.addEventListener('ended', () => {
+                if (!autoNextEnabled) return;
+                const filtered = getFilteredVideos(latestVideos, currentSearchQuery);
+                const idx = filtered.findIndex(v => v.id === videoId);
+                if (idx !== -1 && idx + 1 < filtered.length) {
+                    window.selectVideo(filtered[idx + 1].id);
+                }
             });
         }
 
-        function appendAuthorLabel(container, name, isOwner) {
-            container.innerHTML = "";
-            container.appendChild(document.createTextNode(name || "مجهول"));
-
-            const hasOwnerBadge = Boolean(isOwner) || name === OWNER_DISPLAY_NAME;
-            if (hasOwnerBadge) {
-                const badge = document.createElement('span');
-                badge.className = "verified-badge";
-                badge.title = "صاحب موقع";
-                badge.textContent = "✓";
-                container.appendChild(badge);
-            }
-        }
-
-        function appendUploaderLine(container, v) {
-            container.innerHTML = "";
-            container.appendChild(document.createTextNode(`بواسطة: ${v.uploader || "مجهول"}`));
-
-            const hasOwnerBadge = Boolean(v.isOwner) || v.uploader === OWNER_DISPLAY_NAME;
-            if (hasOwnerBadge) {
-                const badge = document.createElement('span');
-                badge.className = "verified-badge";
-                badge.title = "صاحب موقع";
-                badge.textContent = "✓";
-                container.appendChild(badge);
-            }
+        function renderBadge(isOwner) {
+            if (!isOwner) return "";
+            return `<span class="verified-badge" title="حساب موثق">✓</span>`;
         }
 
         function renderLeftList(videos) {
             videoListLeft.innerHTML = "";
-
             if (!videos.length) {
-                const msg = currentSearchQuery.trim()
-                    ? `لا توجد فيديوهات مطابقة لـ "${currentSearchQuery.trim()}".`
-                    : "لا توجد فيديوهات بعد.";
-                videoListLeft.innerHTML = `<div style="font-size:13px; color:#666;">${msg}</div>`;
+                videoListLeft.innerHTML = `<div style="color:#666666; font-size:13px;">لا توجد فيديوهات مطابقة.</div>`;
                 return;
             }
 
@@ -1097,196 +1545,149 @@
                 const preview = document.createElement('video');
                 preview.className = "thumb-preview";
                 preview.src = v.url;
-                preview.preload = "metadata";
                 preview.muted = true;
+                preview.preload = "metadata";
 
-                const title = document.createElement('div');
-                title.className = "thumb-title";
-                title.innerText = v.title || "فيديو";
+                const titleEl = document.createElement('div');
+                titleEl.className = "thumb-title";
+                titleEl.innerText = v.title || "بدون عنوان";
 
-                const meta = document.createElement('div');
-                meta.className = "thumb-meta";
-                meta.innerText = `مشاهدات: ${v.views || 0} | إعجابات: ${v.likes || 0}`;
-
-                const dateMeta = document.createElement('div');
-                dateMeta.className = "thumb-meta";
-                dateMeta.innerText = `تاريخ النشر: ${formatExactDate(v.createdAt)}`;
+                const metaEl = document.createElement('div');
+                metaEl.className = "thumb-meta";
+                metaEl.innerHTML = `${escapeHtml(v.uploader || "مجهول")}${renderBadge(Boolean(v.isOwner))} • ${v.views || 0} مشاهدة • 👍 ${v.likes || 0}`;
 
                 item.appendChild(preview);
-                item.appendChild(title);
-                item.appendChild(meta);
-                item.appendChild(dateMeta);
+                item.appendChild(titleEl);
+                item.appendChild(metaEl);
                 videoListLeft.appendChild(item);
             });
         }
 
-        function renderStage(videos, forceReloadVideo = false) {
-            const activeVideo = videos.find(v => v.id === selectedVideoId);
-            if (!activeVideo) {
-                const emptyMsg = currentSearchQuery.trim()
-                    ? "لا توجد نتائج مطابقة للبحث الحالي."
-                    : "اختر فيديو من القائمة أو ارفع فيديو جديد لبدء المشاهدة.";
-                playerStage.innerHTML = `<div style="color:#666666; font-size:14px;">${emptyMsg}</div>`;
+        function renderStage(videos, autoPlay = false) {
+            const video = videos.find(v => v.id === selectedVideoId);
+            if (!video) {
+                playerStage.innerHTML = `<div style="color:#666666; font-size:14px;">اختر فيديو من القائمة أو ارفع فيديو جديد لبدء المشاهدة.</div>`;
                 return;
             }
 
-            let bigVid = playerStage.querySelector('.big-video');
-            const currentVidId = bigVid ? bigVid.getAttribute('data-vid-id') : null;
+            const existingVideoEl = playerStage.querySelector('video.big-video');
+            const sameVideoAlreadyMounted = existingVideoEl && existingVideoEl.dataset.videoId === video.id;
 
-            if (!bigVid || currentVidId !== activeVideo.id || forceReloadVideo) {
-                playerStage.innerHTML = `
-                    <video class="big-video" data-vid-id="${activeVideo.id}" controls src="${activeVideo.url}"></video>
-                    <div class="big-title"></div>
-                    <div class="big-author"></div>
-                    <div class="publish-date-line"></div>
-                    <div class="video-bio-box"></div>
-                    <div class="stats-bar"></div>
-                    <div class="comments-box"></div>
-                `;
-                bigVid = playerStage.querySelector('.big-video');
-                attachWatchTracker(bigVid, activeVideo.id);
-            }
+            const isLiked = likedIds.includes(video.id);
+            const comments = normalizeComments(video.comments);
+            const allowEditAllComments = canEditVideoComments(video);
 
-            const titleEl = playerStage.querySelector('.big-title');
-            const authorEl = playerStage.querySelector('.big-author');
-            const dateEl = playerStage.querySelector('.publish-date-line');
-            const bioEl = playerStage.querySelector('.video-bio-box');
-            const statsEl = playerStage.querySelector('.stats-bar');
-            const commentsBox = playerStage.querySelector('.comments-box');
+            const commentsHtml = comments.length
+                ? comments.map(c => {
+                    const key = `${video.id}::${c.id}`;
+                    const isEditingThis = editingCommentKey === key && allowEditAllComments;
+                    const showDelete = canDeleteComment(c, video);
 
-            if (titleEl) titleEl.innerText = activeVideo.title || "فيديو";
-            if (authorEl) appendUploaderLine(authorEl, activeVideo);
-            if (dateEl) dateEl.innerText = `تاريخ النشر: ${formatExactDate(activeVideo.createdAt)}`;
-
-            if (bioEl) {
-                const bioText = (activeVideo.bio || "").trim();
-                bioEl.innerText = bioText ? `البايو: ${bioText}` : "البايو: لا يوجد بايو لهذا المقطع.";
-            }
-
-            const isLiked = likedIds.includes(activeVideo.id);
-            const deleteHtml = isOwnerSession
-                ? `<button class="delete-btn" onclick="deleteVideo('${activeVideo.id}')">حذف الفيديو</button>`
-                : "";
-
-            if (statsEl) {
-                statsEl.innerHTML = `
-                    <span>مشاهدات: ${activeVideo.views || 0}</span>
-                    <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${activeVideo.id}')">
-                        ${isLiked ? 'إلغاء الإعجاب' : 'أعجبني'} (${activeVideo.likes || 0})
-                    </button>
-                    <a href="${activeVideo.url}" target="_blank" style="color:#0044cc;">فتح الرابط مباشرة</a>
-                    ${deleteHtml}
-                `;
-            }
-
-            const comments = normalizeComments(activeVideo.comments);
-            const userCanEditComments = canEditVideoComments(activeVideo);
-            commentsBox.innerHTML = "";
-
-            const cHeader = document.createElement('div');
-            cHeader.style.fontWeight = "bold";
-            cHeader.style.fontSize = "14px";
-            cHeader.style.marginBottom = "6px";
-            cHeader.innerText = `التعليقات (${comments.length})`;
-            commentsBox.appendChild(cHeader);
-
-            comments.forEach((cItem, idx) => {
-                const row = document.createElement('div');
-                row.className = "comment-item";
-
-                const isEditingThis = editingCommentKey === `${activeVideo.id}::${cItem.id}` && userCanEditComments;
-
-                if (isEditingThis) {
-                    const editInput = document.createElement('input');
-                    editInput.type = "text";
-                    editInput.id = `edit-comment-input-${activeVideo.id}-${cItem.id}`;
-                    editInput.value = cItem.text;
-                    editInput.style.width = "65%";
-
-                    const saveBtn = document.createElement('button');
-                    saveBtn.type = "button";
-                    saveBtn.innerText = "حفظ";
-                    saveBtn.style.marginRight = "6px";
-                    saveBtn.onclick = () => window.saveEditComment(activeVideo.id, cItem.id);
-
-                    const cancelEditBtn = document.createElement('button');
-                    cancelEditBtn.type = "button";
-                    cancelEditBtn.innerText = "إلغاء";
-                    cancelEditBtn.style.marginRight = "4px";
-                    cancelEditBtn.onclick = () => window.cancelEditComment();
-
-                    row.appendChild(editInput);
-                    row.appendChild(saveBtn);
-                    row.appendChild(cancelEditBtn);
-                } else {
-                    const topLine = document.createElement('div');
-                    topLine.className = "comment-meta-line";
-
-                    const leftTextWrap = document.createElement('div');
-                    leftTextWrap.appendChild(document.createTextNode(`${idx + 1}. `));
-
-                    const authorSpan = document.createElement('strong');
-                    appendAuthorLabel(authorSpan, cItem.author, cItem.isOwner);
-                    leftTextWrap.appendChild(authorSpan);
-
-                    leftTextWrap.appendChild(document.createTextNode(`: ${cItem.text}`));
-
-                    const actionsWrap = document.createElement('div');
-                    actionsWrap.className = "comment-actions";
-
-                    if (userCanEditComments) {
-                        const editBtn = document.createElement('button');
-                        editBtn.type = "button";
-                        editBtn.innerText = "تعديل";
-                        editBtn.onclick = () => window.startEditComment(activeVideo.id, cItem.id);
-                        actionsWrap.appendChild(editBtn);
+                    if (isEditingThis) {
+                        return `
+                            <div class="comment-item">
+                                <div class="comment-meta-line">
+                                    <strong>${escapeHtml(c.author)}${renderBadge(c.isOwner)}</strong>
+                                    <div class="comment-actions">
+                                        <button type="button" onclick="saveEditComment('${escapeHtml(video.id)}', '${escapeHtml(c.id)}')">حفظ</button>
+                                        <button type="button" onclick="cancelEditComment()">إلغاء</button>
+                                    </div>
+                                </div>
+                                <div style="margin-top:6px;">
+                                    <input type="text" id="edit-comment-input-${escapeHtml(video.id)}-${escapeHtml(c.id)}" value="${escapeHtml(c.text)}" style="width:100%;">
+                                </div>
+                            </div>
+                        `;
                     }
 
-                    if (canDeleteComment(cItem, activeVideo)) {
-                        const delCommentBtn = document.createElement('button');
-                        delCommentBtn.type = "button";
-                        delCommentBtn.className = "delete-btn";
-                        delCommentBtn.innerText = "مسح";
-                        delCommentBtn.onclick = () => window.deleteComment(activeVideo.id, cItem.id);
-                        actionsWrap.appendChild(delCommentBtn);
-                    }
+                    return `
+                        <div class="comment-item">
+                            <div class="comment-meta-line">
+                                <strong>${escapeHtml(c.author)}${renderBadge(c.isOwner)}</strong>
+                                <div class="comment-actions">
+                                    ${allowEditAllComments ? `<button type="button" onclick="startEditComment('${escapeHtml(video.id)}', '${escapeHtml(c.id)}')">تعديل</button>` : ""}
+                                    ${showDelete ? `<button type="button" class="delete-btn" onclick="deleteComment('${escapeHtml(video.id)}', '${escapeHtml(c.id)}')">حذف</button>` : ""}
+                                </div>
+                            </div>
+                            <div class="comment-text">${escapeHtml(c.text)}</div>
+                        </div>
+                    `;
+                }).join("")
+                : `<div style="color:#777777; font-size:13px;">لا توجد تعليقات بعد. كن أول من يعلق!</div>`;
 
-                    topLine.appendChild(leftTextWrap);
-                    topLine.appendChild(actionsWrap);
-                    row.appendChild(topLine);
+            const activeEditInput = editingCommentKey ? document.getElementById(`edit-comment-input-${editingCommentKey.replace("::", "-")}`) : null;
+            const preservedEditValue = activeEditInput ? activeEditInput.value : null;
+
+            const existingCommentUserInput = document.getElementById(`comment-user-${video.id}`);
+            const existingCommentTextInput = document.getElementById(`comment-input-${video.id}`);
+            const preservedUserVal = existingCommentUserInput ? existingCommentUserInput.value : savedCommentUser;
+            const preservedCommentVal = existingCommentTextInput ? existingCommentTextInput.value : "";
+
+            const prevCurrentTime = sameVideoAlreadyMounted ? existingVideoEl.currentTime : 0;
+            const prevPaused = sameVideoAlreadyMounted ? existingVideoEl.paused : !autoPlay;
+
+            playerStage.innerHTML = `
+                <video class="big-video" data-video-id="${escapeHtml(video.id)}" src="${escapeHtml(video.url)}" controls preload="metadata"></video>
+                <div class="watch-progress-wrap">
+                    <span id="watch-label-${escapeHtml(video.id)}">احتساب المشاهدة: 0 / ${REQUIRED_WATCH_SECONDS} ث</span>
+                    <div class="watch-progress-track">
+                        <div class="watch-progress-fill" id="watch-fill-${escapeHtml(video.id)}"></div>
+                    </div>
+                </div>
+                <div class="big-title">${escapeHtml(video.title || "بدون عنوان")}</div>
+                <div class="big-author">الناشر: ${escapeHtml(video.uploader || "مجهول")}${renderBadge(Boolean(video.isOwner))}</div>
+                <div class="publish-date-line">تاريخ النشر: ${escapeHtml(formatExactDate(video.createdAt))}</div>
+                ${video.bio ? `<div class="video-bio-box">${escapeHtml(video.bio)}</div>` : ""}
+
+                <div class="stats-bar">
+                    <div class="stats-group">
+                        <span class="stat-pill">👁️ ${video.views || 0} مشاهدة</span>
+                        <button type="button" class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${escapeHtml(video.id)}')">
+                            👍 إعجاب (${video.likes || 0})
+                        </button>
+                        <button type="button" onclick="copyVideoUrl('${escapeHtml(video.url)}')">نسخ الرابط</button>
+                    </div>
+                    <div class="stats-group">
+                        <label class="auto-next-label">
+                            <input type="checkbox" ${autoNextEnabled ? 'checked' : ''} onchange="toggleAutoNext(this.checked)">
+                            تشغيل التالي تلقائياً
+                        </label>
+                        ${isOwnerSession ? `<button type="button" class="delete-btn" onclick="deleteVideo('${escapeHtml(video.id)}')">حذف الفيديو</button>` : ""}
+                    </div>
+                </div>
+
+                <div class="comments-box">
+                    <h4>التعليقات (${comments.length})</h4>
+                    <div id="commentsList">${commentsHtml}</div>
+                    <div class="comment-form-row">
+                        <input type="text" id="comment-user-${escapeHtml(video.id)}" placeholder="اسم اليوزر (إجباري)" value="${escapeHtml(preservedUserVal)}" style="min-width:165px;">
+                        <input type="text" id="comment-input-${escapeHtml(video.id)}" placeholder="اكتب تعليقاً..." value="${escapeHtml(preservedCommentVal)}" style="flex:1; min-width:200px;">
+                        <button type="button" onclick="addComment('${escapeHtml(video.id)}')">إرسال التعليق</button>
+                    </div>
+                    <div class="comment-cooldown-note">ملاحظة: يُسمح بتعليق واحد كل دقيقة واحدة، ويجب كتابة اسم يوزر.</div>
+                </div>
+            `;
+
+            const newVideoEl = playerStage.querySelector('video.big-video');
+            attachWatchTracker(newVideoEl, video.id);
+
+            if (sameVideoAlreadyMounted && prevCurrentTime > 0) {
+                newVideoEl.addEventListener('loadedmetadata', () => {
+                    newVideoEl.currentTime = prevCurrentTime;
+                    if (!prevPaused) newVideoEl.play().catch(() => {});
+                }, { once: true });
+                if (newVideoEl.readyState >= 1) {
+                    newVideoEl.currentTime = prevCurrentTime;
+                    if (!prevPaused) newVideoEl.play().catch(() => {});
                 }
+            } else if (autoPlay) {
+                newVideoEl.play().catch(() => {});
+            }
 
-                commentsBox.appendChild(row);
-            });
-
-            const formRow = document.createElement('div');
-            formRow.className = "comment-form-row";
-
-            const userInput = document.createElement('input');
-            userInput.type = "text";
-            userInput.id = `comment-user-${activeVideo.id}`;
-            userInput.placeholder = "اسم اليوزر (مطلوب)";
-            userInput.value = savedCommentUser;
-
-            const textInput = document.createElement('input');
-            textInput.type = "text";
-            textInput.id = `comment-input-${activeVideo.id}`;
-            textInput.placeholder = "اكتب تعليقاً...";
-
-            const addBtn = document.createElement('button');
-            addBtn.type = "button";
-            addBtn.innerText = "إضافة تعليق";
-            addBtn.onclick = () => window.addComment(activeVideo.id);
-
-            formRow.appendChild(userInput);
-            formRow.appendChild(textInput);
-            formRow.appendChild(addBtn);
-            commentsBox.appendChild(formRow);
-
-            const note = document.createElement('div');
-            note.className = "comment-cooldown-note";
-            note.innerText = "دقيقة واحدة بين كل تعليق، اسم اليوزر إجباري، التعديل لصاحب الفيديو أو فقط، والمسح لمن كتب التعليق.";
-            commentsBox.appendChild(note);
+            if (preservedEditValue !== null && editingCommentKey) {
+                const reInput = document.getElementById(`edit-comment-input-${editingCommentKey.replace("::", "-")}`);
+                if (reInput) reInput.value = preservedEditValue;
+            }
         }
     </script>
 </body>
